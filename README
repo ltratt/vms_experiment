@@ -1,0 +1,68 @@
+=============================================================================
+  Overview
+=============================================================================
+
+This package accompanies the paper "The impact of RPython on VM design and
+implementation" by Carl Friedrich Bolz and Laurence Tratt. It automates the
+building and running of the experimental results therein, so that others can
+reproduce the results and study them.
+
+We have attempted to make this as automated as possible on Unix machines. We
+recommend that the machine you run this on has at least 6Gb RAM (preferably
+8Gb). You may need to install some background software, although the build
+process does its best to detect this when started. The only piece of software
+we can not easily automate the download of is Java: you will need to provide
+your own Java VM (including javac) and put it into your $PATH.
+
+In general you can simply execute:
+
+  $ ./run-experiments.sh
+
+This will build the necessary software (which takes approximately 1-2 hours)
+and then run the experiments (which takes approximately 12-24 hours). If the
+software has already been built, it will simply run the experiments.
+
+When complete, you will see the results in the results/ directory.
+
+
+=============================================================================
+  Licensing
+=============================================================================
+
+All original files are under the following MIT license:
+
+  build.sh
+  run-benchmarks.sh
+  lua_benchmarks/dhrystone.lua
+
+  Copyright (c)2012 Carl Friedrich Bolz and Laurence Tratt
+
+  Permission is hereby granted, free of charge, to any person obtaining a
+  copy of this software and associated documentation files (the "Software"),
+  to deal in the Software without restriction, including without limitation
+  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  and/or sell copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+
+Files from the Computer Language Benchmarks Game are under a revised BSD license:
+
+  java_benchmarks/fannkuchredux.java
+  lua_benchmarks/fannkuch-redux.lua
+  python_benchmarks/fannkuch-redux.py
+
+  http://shootout.alioth.debian.org/license.php
+
+The Java Richards benchmark license is at:
+
+  http://labs.oracle.com/people/mario/java_benchmarking/download.html
