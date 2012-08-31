@@ -9,14 +9,15 @@ check_for () {
     fi
 }
 
+check_for bunzip2
 check_for git
 check_for hg
-check_for bunzip2
+check_for python
+check_for svn
 which pypy > /dev/null 2> /dev/null
 if [ $? -eq 0 ]; then
     PYTHON=`which pypy`
 else
-    check_for python
     PYTHON=`which python`
 fi
 check_for java
@@ -75,27 +76,79 @@ echo "\\n===> Fetching multitime and supuner\\n"
 cd $wrkdir
 wget https://raw.github.com/ltratt/bin/master/multitime
 wget https://raw.github.com/ltratt/bin/master/supuner
-chmod a+x supuner multitime
+wget https://raw.github.com/ltratt/bin/master/srep
+chmod a+x multitime srep supuner
 
-# download and build CPython
+
+# Converge 1
+
+echo "\\n===> Download and build Converge1\\n"
+sleep 3
+cd $wrkdir
+wget http://tratt.net/laurie/research/publications/files/metatracing_vms/snapshot_1.2.x.tar.bz2
+bunzip2 -c - snapshot_1.2.x.tar.bz2|tar xf -
+mv converge-current converge-1.2.x
+git clone git://github.com/ltratt/converge.git
+mv converge converge1
+cp -rp converge-1.2.x/bootstrap/32bit_little_endian/* converge1/bootstrap/32bit_little_endian/
+cd converge1
+git checkout converge-1.x
+git checkout 9084f0cdaf
+make -f Makefile.bootstrap
+./configure || exit $?
+$MYMAKE || exit $?
+
+
+# CPython
 
 echo "\\n===> Download and build CPython\\n"
 sleep 3
 cd $wrkdir
-wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2
-bunzip2 -c - Python-2.7.2.tar.bz2 | tar xf -
-cd Python-2.7.2
+wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2
+bunzip2 -c - Python-2.7.3.tar.bz2 | tar xf -
+mv Python-2.7.3 cpython
+cd cpython
 ./configure || exit $?
 $MYMAKE || exit $?
+cp $wrkdir/cpython/Lib/test/pystone.py $wrkdir/benchmarks/dhrystone.py
 
-# download and build Lua
+
+# JRuby
+
+echo "\\n===> Download and build JRuby\\n"
+sleep 3
+cd $wrkdir
+wget http://jruby.org.s3.amazonaws.com/downloads/1.6.7.2/jruby-bin-1.6.7.2.tar.gz
+wget http://jruby.org.s3.amazonaws.com/downloads/1.7.0.preview2/jruby-bin-1.7.0.preview2.tar.gz
+tar xfz jruby-bin-1.7.0.preview2.tar.gz
+git clone git://github.com/jruby/jruby.git
+mv jruby jruby_src
+mv jruby-1.7.0.preview2 jruby
+cd jruby_src
+git checkout 1.7.0.preview2
+
+
+# Jython
+
+echo "\\n===> Download and build Jython\\n"
+sleep 3
+cd $wrkdir
+mkdir jython
+wget http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar
+java -jar jython_installer-2.5.2.jar -s -d jython
+svn co https://jython.svn.sourceforge.net/svnroot/jython/tags/Release_2_5_2/
+mv Release_2_5_2 jython_src
+
+
+# Lua
 
 echo "\\n===> Download and build Lua\\n"
 sleep 3
 cd $wrkdir
-wget http://www.lua.org/ftp/lua-5.1.5.tar.gz
-tar xfz lua-5.1.5.tar.gz
-cd lua-5.1.5
+wget http://www.lua.org/ftp/lua-5.2.1.tar.gz
+tar xfz lua-5.2.1.tar.gz
+mv lua-5.2.1 lua
+cd lua
 case `uname -s` in
     *BSD) $MYMAKE bsd || exit $?;;
     Darwin) $MYMAKE macosx || exit $?;;
@@ -103,58 +156,28 @@ case `uname -s` in
     *) $MYMAKE generic || exit $?;;
 esac
 
-# download and build Luajit
+
+# Luajit
 
 echo "\\n===> Download and build LuaJIT\\n"
 sleep 3
 cd $wrkdir
-git clone http://luajit.org/git/luajit-2.0.git
-cd luajit-2.0
-git checkout 5dbb6671a3
+wget http://luajit.org/download/LuaJIT-2.0.0-beta10.tar.gz
+tar xfz LuaJIT-2.0.0-beta10.tar.gz
+mv LuaJIT-2.0.0-beta10 luajit
+cd luajit
 $MYMAKE || exit $?
 
-# download and build Jython
-
-echo "\\n===> Download and build Jython\\n"
-sleep 3
-cd $wrkdir
-mkdir jython
-wget http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar
-java -jar jython_installer-2.5.2.jar  -s -d jython
-
-# Download and build Converge 1.x
-
-echo "\\n===> Download and build Converge 1\\n"
-sleep 3
-cd $wrkdir
-wget http://convergepl.org/releases/current/snapshot_1.2.x.tar.bz2
-bunzip2 -c - snapshot_1.2.x.tar.bz2|tar xf -
-mv converge-current converge-1.2.x
-git clone git://github.com/ltratt/converge.git
-mv converge converge1
-cp -rp converge-1.2.x/bootstrap/32bit_little_endian/* converge1/bootstrap/32bit_little_endian/
-cd converge1
-cp -rp examples/benchmarks examples/benchmarks_tmp
-git checkout converge-1.x
-git checkout 9084f0cdaf
-make -f Makefile.bootstrap
-./configure || exit $?
-$MYMAKE || exit $?
-mv examples/benchmarks_tmp examples/benchmarks
-cd examples/benchmarks
-../../vm/converge ../../compiler/convergec -m cvstone.cv
-../../vm/converge ../../compiler/convergec -m fannkuch-redux.cv
-../../vm/converge ../../compiler/convergec -m richards.cv
 
 # Download and build PyPy
 
-echo "\\n===> Download PyPy 1.8\\n"
+echo "\\n===> Download PyPy\\n"
 sleep 3
 cd $wrkdir
-hg clone https://bitbucket.org/pypy/pypy
-cd pypy
-hg checkout release-1.8
-cd pypy/translator/goal/
+wget https://bitbucket.org/pypy/pypy/get/release-1.9.tar.bz2
+bunzip2 -c - release-1.9.tar.bz2 | tar xf -
+mv pypy-pypy-* pypy
+cd pypy/pypy/translator/goal/
 echo "\\n===> Build normal PyPy\\n"
 sleep 3
 $PYTHON translate.py -Ojit --output=pypy-jit-standard || exit $?
@@ -162,40 +185,54 @@ echo "\\n===> Build PyPy without optimisations\\n"
 sleep 3
 $PYTHON translate.py -O2 --translation-jit  --output=pypy-jit-no-object-optimizations targetpypystandalone.py --no-objspace-std-withcelldict --no-objspace-std-withmapdict --no-objspace-std-withmethodcache || exit $?
 
-# Download and build Converge 2
+
+# Converge 2
+#
+# This needs PyPy to have been downloaded, hence why it's out of order.
 
 echo "\\n===> Download and build Converge 2\\n"
 sleep 3
 cd $wrkdir
-wget http://convergepl.org/releases/current/snapshot.tar.bz2
-bunzip2 -c - snapshot.tar.bz2 | tar xf -
-git clone git://github.com/ltratt/converge.git
-mv converge converge2
-cd converge2
-git checkout e44800ec7c
-cd $wrkdir
-cp converge-current/bootstrap/32bit_little_endian/* converge2/bootstrap/32bit_little_endian/
-rm -rf converge-current
+wget http://convergepl.org/releases/2.0/converge-2.0.tar.bz2
+bunzip2 -c - converge-2.0.tar.bz2 | tar xf -
+mv converge-2.0 converge2
 cd converge2
 PYPY_SRC=$wrkdir/pypy/ ./configure || exit $?
 $MYMAKE regress || exit $?
+
+
+# Ruby
+
+echo "\\n===> Download and build Ruby\\n"
+sleep 3
+cd $wrkdir
+wget http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p194.tar.gz
+tar xfz ruby-1.9.3-p194.tar.gz
+mv ruby-1.9.3-p194 ruby
+cd ruby
+./configure || exit $?
+$MYMAKE || exit $?
+
 
 # Download the remaining benchmarks
 
 echo "\\n===> Download and build misc benchmarks\\n"
 
-mkdir $wrkdir/java_benchmarks
-
-cd $wrkdir/java_benchmarks
+t=`mktemp -d`
+cd $t
 wget http://labs.oracle.com/people/mario/java_benchmarking/richdbsrc.zip
 unzip richdbsrc.zip
 mv Benchmark.java Program.java COM/sun/labs/kanban/richards_deutsch_acc_virtual/
 cd COM/sun/labs/kanban/richards_deutsch_acc_virtual
-patch < $wrkdir/java_benchmarks/java_richards.patch || exit $?
-javac *.java || exit $?
+mv Richards.java richards.java
+patch < $wrkdir/patches/java_richards.patch || exit $?
+cp *.java $wrkdir/benchmarks
+rm -fr $t
 
-cd $wrkdir/java_benchmarks
-javac fannkuchredux.java || exit $?
-
+t=`mktemp -d`
+cd $t
 wget http://hotpy.googlecode.com/svn-history/r96/trunk/benchmarks/java/dhry.java http://hotpy.googlecode.com/svn-history/r96/trunk/benchmarks/java/GlobalVariables.java http://hotpy.googlecode.com/svn-history/r96/trunk/benchmarks/java/DhrystoneConstants.java http://hotpy.googlecode.com/svn-history/r96/trunk/benchmarks/java/Record_Type.java
-javac dhry.java || exit $?
+patch < $wrkdir/patches/java_dhrystone.patch || exit $?
+mv dhry.java dhrystone.java
+cp *.java $wrkdir/benchmarks
+rm -fr $t

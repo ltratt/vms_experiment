@@ -319,17 +319,7 @@ local function main(loops)
   return delta
 end
 
-nargs = table.getn(arg)
-loops = tonumber(arg[1])
-if nargs > 1 then
-    print(nargs, "arguments are too many")
-elseif nargs == 1 and loops == nil then
-    print("Invalid argument", arg[1])
-else
-    if nargs == 0 then
-        loops = 10
-    end
-    delta = main(loops)
-    if tracing then io.write("Time (in seconds): ") end
-    print(delta)
-end
+loops = tonumber(arg and arg[1]) or 10
+delta = main(loops)
+if tracing then io.write("Time (in seconds): ") end
+print(delta)

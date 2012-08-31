@@ -14,26 +14,35 @@ process does its best to detect this when started. The only piece of software
 we can not easily automate the download of is Java: you will need to provide
 your own Java VM (including javac) and put it into your $PATH.
 
-In general you can simply execute:
+In general you can simply execute make:
 
-  $ ./run-experiments.sh
+  $ make
 
 This will build the necessary software (which takes approximately 1-2 hours)
-and then run the experiments (which takes approximately 12-24 hours). If the
-software has already been built, it will simply run the experiments.
+and then run the experiments. These default to 30 repetitions of each
+benchmark, for a rough running time of 1 week. If you want a shorter run, you
+can edit the REPS parameter at the top of run_benchmarks.sh (minimum value is
+1). When complete, you will see the results in the results/ directory.
 
-When complete, you will see the results in the results/ directory.
 
+=============================================================================
+  LoC
+=============================================================================
+
+We have also automated the Lines of Code (LoC) count for VMs so that you can
+see precisely what we have included and excluded. In general you can simply
+execute:
+
+  $ ./loc.sh
+
+Note that "build.sh" has not previously been run, "build.sh" will be executed
+to download all the VMs.
 
 =============================================================================
   Licensing
 =============================================================================
 
 All original files are under the following MIT license:
-
-  build.sh
-  run-benchmarks.sh
-  lua_benchmarks/dhrystone.lua
 
   Copyright (c)2012 Carl Friedrich Bolz and Laurence Tratt
 
@@ -57,11 +66,11 @@ All original files are under the following MIT license:
 
 Files from the Computer Language Benchmarks Game are under a revised BSD license:
 
-  java_benchmarks/fannkuchredux.java
-  lua_benchmarks/fannkuch-redux.lua
-  python_benchmarks/fannkuch-redux.py
-
   http://shootout.alioth.debian.org/license.php
+
+The LUA Richards benchmark is in the public domain:
+
+  http://www.dcc.ufrj.br/~fabiom/richards_lua.zip
 
 The Java Richards benchmark license is at:
 

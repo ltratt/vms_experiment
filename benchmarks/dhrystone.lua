@@ -239,15 +239,5 @@ function Func3(EnumParIn)
     return false
 end
 
-nargs = table.getn(arg)
-loops = tonumber(arg[1])
-if nargs > 1 then
-    print(nargs, "arguments are too many")
-elseif nargs == 1 and loops == nil then
-    print("Invalid argument", arg[1])
-else
-    if nargs == 0 then
-        loops = LOOPS
-    end
-    main(loops)
-end
+loops = tonumber(arg and arg[1]) or LOOPS
+main(loops)

@@ -1,0 +1,83 @@
+--- Richards.java.orig	Fri Oct 24 16:25:36 1997
++++ richards.java	Fri Aug 17 16:50:56 2012
+@@ -6,10 +6,6 @@
+ //  Translation from C++, Mario Wolczko
+ //  Outer loop added by Alex Jacoby
+ 
+-package COM.sun.labs.kanban.richards_deutsch_acc_virtual;
+-
+-import Benchmark;
+-
+ //----- Packet -------------------------------------------------------
+ 
+ class Packet {
+@@ -106,7 +102,7 @@
+   private int destination;
+   private int count;
+ 
+-  WorkerTaskRec() { destination = Richards.I_HANDLERA; count = 0; }
++  WorkerTaskRec() { destination = richards.I_HANDLERA; count = 0; }
+ 
+   int       Count() { return count; }
+   int Destination() { return destination; }
+@@ -327,7 +323,7 @@
+   Task fn(Packet pkt, TaskRec r) {
+     HandlerTaskRec h = (HandlerTaskRec)r;
+     if (pkt != null) {
+-      if (pkt.Kind() == Richards.K_WORK)
++      if (pkt.Kind() == richards.K_WORK)
+ 	h.WorkInAdd(pkt);
+       else
+         h.DeviceInAdd(pkt);
+@@ -371,10 +367,10 @@
+       return hold();
+     } else if ((i.Control() & 1) == 0) {
+       i.SetControl(i.Control() / 2);
+-      return release(Richards.I_DEVA);
++      return release(richards.I_DEVA);
+     } else {
+       i.SetControl((i.Control() / 2) ^ 0XD008);
+-      return release(Richards.I_DEVB);
++      return release(richards.I_DEVB);
+     }
+   }
+ 
+@@ -395,9 +391,9 @@
+     if (pkt == null)
+       return waitTask();
+ 
+-    int dest = (w.Destination() == Richards.I_HANDLERA
+-		? Richards.I_HANDLERB
+-		: Richards.I_HANDLERA);
++    int dest = (w.Destination() == richards.I_HANDLERA
++		? richards.I_HANDLERB
++		: richards.I_HANDLERA);
+     w.SetDestination(dest);
+     pkt.SetIdent(dest);
+     pkt.SetDatum(0);
+@@ -414,18 +410,22 @@
+ //----- Richards -----------------------------------------------------
+ 
+ 
+-public class Richards implements Benchmark
++public class richards implements Benchmark
+ {
+   private long total_ms;
+   public long getRunTime() { return total_ms; }
+ 
+   public static void main(String[] args) {
+-    (new Richards()).inst_main(args);
++    (new richards()).inst_main(args);
+   }
+ 
+-  static int iterations = 10;
++  int iterations;
+ 
+   public void inst_main(String[] args) { 
++    if (args.length > 0)
++        iterations = Integer.parseInt(args[0]);
++    else
++        iterations = 10;
+     System.out.println("Richards benchmark (deutsch_acc_virtual) starting...");
+     long startTime = System.currentTimeMillis();
+     if (!run())
