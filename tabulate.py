@@ -2,10 +2,12 @@
 
 #
 # This file takes in the "results" output from multitime, processes it, and
-# outputs LaTeX files suitable for inclusion into a paper.
+# outputs HTML (by default) or LaTeX files (suitable for inclusion into a paper).
+#
+# python tabulate.py [latex]
 #
 
-import os, re
+import os, re, subprocess, sys
 
 RESULTS_PATH = "results"
 VMS_MAP = {
@@ -102,7 +104,7 @@ def read_data():
 
 
 
-def timings(benchmarks, out_path, width, bench_filter, vm_filter):
+def latex_timings(benchmarks, outp, width, bench_filter, vm_filter):
     vms_used = set()
     bns_used = set()
     for vm, bn, sz, mean, conf in benchmarks: # Benchmark result leaf name, benchmark results
@@ -112,11 +114,10 @@ def timings(benchmarks, out_path, width, bench_filter, vm_filter):
         if vm_filter and not vm_filter(vm):
             continue
         vms_used.add(vm)
-    print bns_used
 
     bns_used = list(bns_used)
     bns_used.sort()
-    with file(out_path, "w") as f:
+    with file(outp, "w") as f:
         f.write("\\begin{center}\n")
         f.write("\\begin{tabularx}{%s}{l" % width + ">{\\raggedleft}X@{\hspace{-5pt}}c@{\hspace{5pt}}X" * (len(bns_used)) + "}\n")
         f.write("\\toprule\n")
@@ -140,7 +141,6 @@ def timings(benchmarks, out_path, width, bench_filter, vm_filter):
                         f.write(" & \\multicolumn{1}{r}{%0.3f} & \\tiny{$\pm$} & \\tiny{%0.3f}" % (mean, conf))
                         break
                 else:
-                    print "blank"
                     f.write(" & & - &")
             f.write("\\\\\n")
 
@@ -150,14 +150,132 @@ def timings(benchmarks, out_path, width, bench_filter, vm_filter):
 
 
 
+
+def html_timings(benchmarks, outp):
+    vms_used = set()
+    bns_used = set()
+    for vm, bn, sz, mean, conf in benchmarks: # Benchmark result leaf name, benchmark results
+        bns_used.add((bn, sz))
+        vms_used.add(vm)
+
+    bns_used = list(bns_used)
+    bns_used.sort()
+    with file(outp, "w") as f:
+        f.write("""<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title>VMs experiment</title>
+<style type="text/css">
+table { border-spacing: 0 }
+.top-rule    td { border-top: 2px solid black }
+.mid-rule    td { border-bottom: 1px solid black }
+.bottom-rule td { border-bottom: 2px solid black }
+.smaller        { font-size: 50% }
+.plusmn         { font-size: 50% ; padding: 0 5px 0 5px }
+.left-margin    { padding-left: 30px }
+h1              { text-align: center }
+h3              { text-align: center; margin-top: 75px }
+</style>
+</head>
+<body>
+
+<h1>VMs experiment</h1>
+
+This page is an auto-generated pretty printing of the results of running the
+experiments that form part of the paper <a
+href="http://tratt.net/laurie/research/publications/files/metatracing_vms/">
+The Impact of Meta-Tracing on VM Design and Implementation</a> by Carl
+Friedrich Bolz and Laurence Tratt. The <code>dmesg</code> for the machine
+used to produce these results can be seen below.
+
+<h3>Experimental results</h3>""")
+
+        f.write("""<table style="margin: 0 auto 0 auto">\n""")
+        i = 0
+        while i < len(bns_used):
+            if i > 0:
+                f.write("<tr><td>&nbsp;</td></tr>")
+            
+            bns = bns_used[i : i + 6]
+
+            f.write("""<tr class="top-rule"><td></td>""")
+            short_bns = list(set([bn for (bn, sz) in bns]))
+            short_bns.sort()
+            j = 0
+            for short_bn in short_bns:
+                if j == 0:
+                    f.write("""<td class="left-margin" """)
+                else:
+                    f.write("<td ")
+                f.write("""colspan=6 style="text-align: center">%s</td>""" % BENCH_MAP[short_bn])
+                j += 1
+            f.write("""</tr>\n<tr class="mid-rule"><td></td>""")
+            j = 0
+            for bn, sz in bns:
+                if j == 0:
+                    f.write("""<td class="left-margin" """)
+                else:
+                    f.write("<td ")
+                f.write("""colspan=3 style="text-align: center">%s</td>""" % SIZE_MAP.get(sz, sz))
+                j += 1
+            f.write("</tr>\n")
+
+            vms_used = list(vms_used)
+            vms_used.sort(lambda x, y: cmp(VMS_ORDER.index(x), VMS_ORDER.index(y)))
+            j = 0
+            for dvm in vms_used:
+                if j + 1 == len(vms_used):
+                    f.write("""<tr class="bottom-rule">\n""")
+                else:
+                    f.write("<tr>\n")
+                f.write("<td>%s</td>" % VMS_MAP[dvm])
+                k = 0
+                for dbn, dsz in bns:
+                    for vm, bn, sz, mean, conf in benchmarks:
+                        if dvm == vm and dbn == bn and dsz == sz:
+                            if k == 0:
+                                f.write("""<td class="left-margin">%0.3f</td>""" % mean)
+                            else:
+                                f.write("""<td>%0.3f</td>""" % mean)
+                            f.write("""<td class="plusmn">&plusmn;</td><td class="smaller"   >%0.3f</td>""" % conf)
+                            break
+                    else:
+                        f.write("<td></td><td></td><td>-</td>")
+                f.write("\n")
+                f.write("""</tr class="top-rule">""")
+                j += 1
+
+            f.write("")
+
+            i += 6
+
+        f.write("</table>\n")
+        
+        f.write("<h3>dmesg</h3>\n<pre>")
+        dm = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
+        f.write(dm.stdout.read())
+        f.write("</pre>\n</html>")
+        
+
+
+
 benchmarks = read_data()
-timings(benchmarks, "abbrev.tex", "1.2\\textwidth", \
-  lambda x: x in ["dhrystone", "fannkuchredux", "richards"], None)
-timings(benchmarks, "full1.tex", "\\textwidth", lambda x: x in ["binarytrees", "dhrystone", "fannkuchredux"], \
-  lambda x: not "converge" in x)
-timings(benchmarks, "full2.tex", "\\textwidth", lambda x: x in ["fasta", "knucleotide", "mandelbrot"], \
-  lambda x: not "converge" in x)
-timings(benchmarks, "full3.tex", "\\textwidth", lambda x: x in ["nbody", "regexdna", "revcomp"], \
-  lambda x: not "converge" in x)
-timings(benchmarks, "full4.tex", ".72\\textwidth", lambda x: x in ["richards", "spectralnorm"], \
-  lambda x: not "converge" in x)
+if "latex" in sys.argv:
+    latex_timings(benchmarks, "abbrev.tex", "1.2\\textwidth", \
+      lambda x: x in ["dhrystone", "fannkuchredux", "richards"], None)
+    latex_timings(benchmarks, "full1.tex", "\\textwidth", \
+      lambda x: x in ["binarytrees", "dhrystone", "fannkuchredux"], \
+      lambda x: not "converge" in x)
+    latex_timings(benchmarks, "full2.tex", "\\textwidth", \
+      lambda x: x in ["fasta", "knucleotide", "mandelbrot"], \
+      lambda x: not "converge" in x)
+    latex_timings(benchmarks, "full3.tex", "\\textwidth", \
+      lambda x: x in ["nbody", "regexdna", "revcomp"], \
+      lambda x: not "converge" in x)
+    latex_timings(benchmarks, "full4.tex", ".72\\textwidth", \
+      lambda x: x in ["richards", "spectralnorm"], \
+      lambda x: not "converge" in x)
+else:
+    html_timings(benchmarks, "results.html")
