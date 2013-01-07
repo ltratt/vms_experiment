@@ -7,7 +7,7 @@
 # python tabulate.py [latex]
 #
 
-import os, re, subprocess, sys
+import os, re, stat, subprocess, sys, time
 
 RESULTS_PATH = "results"
 VMS_MAP = {
@@ -161,6 +161,8 @@ def html_timings(benchmarks, outp):
     bns_used = list(bns_used)
     bns_used.sort()
     with file(outp, "w") as f:
+        t = time.localtime(os.stat("results")[stat.ST_MTIME])
+        ppt = time.strftime(r"%Y-%m-%d %H:%M:%S %Z", t)
         f.write("""<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
@@ -172,8 +174,8 @@ table { border-spacing: 0 }
 .top-rule    td { border-top: 2px solid black }
 .mid-rule    td { border-bottom: 1px solid black }
 .bottom-rule td { border-bottom: 2px solid black }
-.smaller        { font-size: 50% }
-.plusmn         { font-size: 50% ; padding: 0 5px 0 5px }
+.smaller        { font-size: 50%% }
+.plusmn         { font-size: 50%% ; padding: 0 5px 0 5px }
 .left-margin    { padding-left: 30px }
 h1              { text-align: center }
 h3              { text-align: center; margin-top: 75px }
@@ -190,7 +192,11 @@ The Impact of Meta-Tracing on VM Design and Implementation</a> by Carl
 Friedrich Bolz and Laurence Tratt. The <code>dmesg</code> for the machine
 used to produce these results can be seen below.
 
-<h3>Experimental results</h3>""")
+<h3>Experimental results</h3>
+
+The results here come from a <code>results</code> file last modified at %s.
+
+<p>""" % ppt)
 
         f.write("""<table style="margin: 0 auto 0 auto">\n""")
         i = 0
