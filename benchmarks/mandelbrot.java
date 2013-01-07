@@ -1,87 +1,84 @@
 /* The Computer Language Benchmarks Game
+   http://shootout.alioth.debian.org/
+   contributed by Stefan Krause
+   slightly modified by Chad Whipkey
 
- * http://shootout.alioth.debian.org/
+*/
 
- * 
+import java.io.IOException;
+import java.io.PrintStream;
 
- * contributed by Stefan Krause
-
- * slightly modified by Chad Whipkey
-
- * parallelized by Colin D Bennett 2008-10-04
-
- * reduce synchronization cost by The Anh Tran
-
- * optimizations and refactoring by Enotus 2010-11-11
-
- * optimization by John Stalcup 2012-2-19
-
- */
-
-
-import java.io.*;
-import java.util.concurrent.atomic.*;
-
-public final class mandelbrot {
-   static byte[][] out;
-   static AtomicInteger yCt;
-   static double[] Crb;
-   static double[] Cib;
-
-   static int getByte(int x, int y){
-      int res=0;
-      for(int i=0;i<8;i+=2){
-         double Zr1=Crb[x+i];
-         double Zi1=Cib[y];
-
-         double Zr2=Crb[x+i+1];
-         double Zi2=Cib[y];
-
-         int b=0;
-         int j=49;do{
-            double nZr1=Zr1*Zr1-Zi1*Zi1+Crb[x+i];
-            double nZi1=Zr1*Zi1+Zr1*Zi1+Cib[y];
-            Zr1=nZr1;Zi1=nZi1;
-
-            double nZr2=Zr2*Zr2-Zi2*Zi2+Crb[x+i+1];
-            double nZi2=Zr2*Zi2+Zr2*Zi2+Cib[y];
-            Zr2=nZr2;Zi2=nZi2;
-
-            if(Zr1*Zr1+Zi1*Zi1>4){b|=2;if(b==3)break;}
-            if(Zr2*Zr2+Zi2*Zi2>4){b|=1;if(b==3)break;}
-         }while(--j>0);
-         res=(res<<2)+b;
-      }
-      return res^-1;
-   }
-
-   static void putLine(int y, byte[] line){
-      for (int xb=0; xb<line.length; xb++)
-         line[xb]=(byte)getByte(xb*8,y);
-   }
+class mandelbrot {
 
    public static void main(String[] args) throws Exception {
-      int N=6000;
-      if (args.length>=1) N=Integer.parseInt(args[0]);
+       new Mandelbrot(Integer.parseInt(args[0])).compute();
+   }
 
-      Crb=new double[N+7]; Cib=new double[N+7];
-      double invN=2.0/N; for(int i=0;i<N;i++){ Cib[i]=i*invN-1.0; Crb[i]=i*invN-1.5; }
-      yCt=new AtomicInteger();
-      out=new byte[N][(N+7)/8];
+   public static class Mandelbrot {
+       private static final int BUFFER_SIZE = 8192;
 
-      Thread[] pool=new Thread[2*Runtime.getRuntime().availableProcessors()];
-      for (int i=0;i<pool.length;i++)
-         pool[i]=new Thread(){
-            public void run() {
-                int y; while((y=yCt.getAndIncrement())<out.length) putLine(y,out[y]);
+       public Mandelbrot(int size) {
+         this.size = size;
+         fac = 2.0 / size;
+         out = System.out;
+         shift = size % 8 == 0 ? 0 : (8- size % 8);
+      }
+      final int size;
+      final PrintStream out;
+      final byte [] buf = new byte[BUFFER_SIZE];
+      int bufLen = 0;
+      final double fac;
+      final int shift;
+
+      public void compute() throws IOException
+      {
+         out.format("P4\n%d %d\n",size,size);
+         for (int y = 0; y<size; y++)
+            computeRow(y);
+         out.write( buf, 0, bufLen);
+         out.close();
+      }
+
+      private void computeRow(int y) throws IOException
+      {
+         int bits = 0;
+
+         final double Ci = (y*fac - 1.0);
+          final byte[] bufLocal = buf;
+          for (int x = 0; x<size;x++) {
+            double Zr = 0.0;
+            double Zi = 0.0;
+            double Cr = (x*fac - 1.5);
+            int i = 50;
+            double ZrN = 0;
+            double ZiN = 0;
+            do {
+               Zi = 2.0 * Zr * Zi + Ci;
+               Zr = ZrN - ZiN + Cr;
+               ZiN = Zi * Zi;
+               ZrN = Zr * Zr;
+            } while (!(ZiN + ZrN > 4.0) && --i > 0);
+
+            bits = bits << 1;
+            if (i == 0) bits++;
+
+            if (x%8 == 7) {
+                bufLocal[bufLen++] = (byte) bits;
+                if ( bufLen == BUFFER_SIZE) {
+                    out.write(bufLocal, 0, BUFFER_SIZE);
+                    bufLen = 0;
+                }
+               bits = 0;
             }
-         };
-      for (Thread t:pool) t.start();
-      for (Thread t:pool) t.join();
-
-      OutputStream stream = new BufferedOutputStream(System.out);
-      stream.write(("P4\n"+N+" "+N+"\n").getBytes());
-      for(int i=0;i<N;i++) stream.write(out[i]);
-      stream.close();
+         }
+         if (shift!=0) {
+            bits = bits << shift;
+            bufLocal[bufLen++] = (byte) bits;
+            if ( bufLen == BUFFER_SIZE) {
+                out.write(bufLocal, 0, BUFFER_SIZE);
+                bufLen = 0;
+            }
+         }
+      }
    }
 }

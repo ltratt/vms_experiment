@@ -20,9 +20,9 @@ In general you can simply execute make:
 
 This will build the necessary software (which takes approximately 1-2 hours)
 and then run the experiments. These default to 30 repetitions of each
-benchmark, for a rough running time of 1 week. If you want a shorter run, you
+benchmark, for a rough running time of 4-7 days. If you want a shorter run, you
 can edit the REPS parameter at the top of run_benchmarks.sh (minimum value is
-1). When complete, you will see the results in the results/ directory.
+1). When complete, you will see the results in the "results" file.
 
 
 =============================================================================
@@ -67,6 +67,10 @@ All original files are under the following MIT license:
 Files from the Computer Language Benchmarks Game are under a revised BSD license:
 
   http://shootout.alioth.debian.org/license.php
+
+The Richards benchmark is in the public domain (Martin Richards confirmed
+"everything in my bench distribution is in the public domain except for the
+directory sunjava.").
 
 The LUA Richards benchmark is in the public domain:
 

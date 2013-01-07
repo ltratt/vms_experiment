@@ -12,11 +12,14 @@ def main():
     xr_iter = xrange(50)
     bit = 128
     byte_acc = 0
+    buf_size = 8192
+    buf = [None] * buf_size
 
     cout("P4\n%d %d\n" % (size, size))
 
     size = float(size)
     for y in xr_size:
+        buf_i = 0
         fy = 2j * y / size - 1j
         for x in xr_size:
             z = 0j
@@ -32,13 +35,17 @@ def main():
             if bit > 1:
                 bit >>= 1
             else:
-                cout(chr(byte_acc))
+                buf[buf_i] = chr(byte_acc)
+                buf_i += 1
                 bit = 128
                 byte_acc = 0
 
         if bit != 128:
-            cout(chr(byte_acc))
+            buf[buf_i] = chr(byte_acc)
+            buf_i += 1
             bit = 128
             byte_acc = 0
+        
+        cout("".join(buf[:buf_i]))
 
 main()

@@ -64,7 +64,7 @@ echo "JRuby LoC:" `wc -l $dump | cut -d " " -f 1`
 
 # Jython
 
-cd $wrkdir/jython_src/jython/src
+cd $wrkdir/jython/src
 find . -name "*.java" | grep -E "^\./org/python/core" \
   | xargs cat > $dump
 $wrkdir/srep -m "//.*?$" "" $dump

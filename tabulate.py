@@ -1,9 +1,15 @@
 #! /usr/bin/env python
 
+#
+# This file takes in the "results" output from multitime, processes it, and
+# outputs LaTeX files suitable for inclusion into a paper.
+#
+
 import os, re
 
 RESULTS_PATH = "results"
 VMS_MAP = {
+  "c"             : "C",
   "java"          : "HotSpot",
   "converge1"     : "Converge1",
   "converge2"     : "Converge2",
@@ -12,12 +18,12 @@ VMS_MAP = {
   "jython"        : "Jython",
   "lua"           : "Lua",
   "luajit"        : "LuaJIT",
-  "pypy_noopt"    : "PyPy--nonopt",
-  "pypy_standard" : "PyPy",
+  "pypy-jit-no-object-optimizations" : "PyPy--nonopt",
+  "pypy-jit-standard" : "PyPy",
   "ruby"          : "Ruby"
 }
-VMS_ORDER=["java", "converge1", "converge2", "lua", "luajit", "cpython", \
-  "jython", "pypy_noopt", "pypy_standard", "ruby", "jruby"]
+VMS_ORDER=["c", "java", "converge1", "converge2", "lua", "luajit", "cpython", \
+  "jython", "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby"]
 BENCH_MAP = {
   "binarytrees"   : "Binary Trees",
   "dhrystone"     : "Dhrystone",
@@ -36,27 +42,62 @@ SIZE_MAP = {
   "input1000000.txt" : "1000000",
   "input10000000.txt" : "10000000"
 }
-RE_BENCHMARK = re.compile("(.*?)_(.*?)_(.*)")
 
 
 def read_data():
-    benchmarks = {}
-    for leaf in os.listdir(RESULTS_PATH):
-        path = os.path.join(RESULTS_PATH, leaf)
-        print "Processing", path + "..."
-        with file(path) as f:
-            s = f.read()
-            if len(s.strip()) == 0 or "exited with a non-zero return code on" in s:
-                benchmarks[leaf] = [None, None]
-                continue
-            lines = s.splitlines()
-            means = lines[2]
-            stddev = lines[3]
-            assert means.startswith("Means:")
-            assert stddev.startswith("Std. devs:")
-            mean = float(means.partition("real ")[2].partition(" user ")[0])
-            stddev = float(stddev.partition("real ")[2].partition(" user ")[0])
-            benchmarks[leaf] = [mean, stddev * 1.959964]
+    benchmarks = []
+    with file("results") as f:
+        d = []
+        while 1:
+            l = f.readline()
+            if not l:
+                break
+            d.append(l.strip())
+        
+        i = 0
+        while i < len(d):
+            if d[i] == "===> multitime results":
+                i += 1
+                break
+            i += 1
+        
+        while i < len(d):
+            name = d[i]
+            real_sp = re.split(" +", d[i + 2])
+            mean = float(real_sp[1])
+            stddev = float(real_sp[2])
+            
+            if "luajit" in name:
+                # Since lua could match luajit or lua, we special case luajit
+                vm = "luajit"
+            elif "jruby" in name:
+                # Ditto Ruby/JRuby
+                vm = "jruby"
+            else:
+                for vm in VMS_MAP.keys():
+                    if vm == "c":
+                        continue
+                    if vm in name:
+                        break
+                else:
+                    vm = "c"
+
+            for bn in BENCH_MAP.keys():
+                if bn in name:
+                    break
+            else:
+                raise "XXX"
+
+            for sz in SIZE_MAP.keys():
+                if sz in name:
+                    break
+            else:
+                sz = name.strip().split(" ")[-1]
+            
+            benchmarks.append([vm, bn, sz, mean, stddev * 1.959964])
+            
+            i += 6
+
     return benchmarks
 
 
@@ -64,15 +105,14 @@ def read_data():
 def timings(benchmarks, out_path, width, bench_filter, vm_filter):
     vms_used = set()
     bns_used = set()
-    for bl in benchmarks.keys(): # Benchmark result leaf name, benchmark results
-        m = RE_BENCHMARK.match(bl)
-        bn, bsz, bvm = m.groups()
+    for vm, bn, sz, mean, conf in benchmarks: # Benchmark result leaf name, benchmark results
         if bench_filter and not bench_filter(bn):
             continue
-        bns_used.add("%s_%s" % (bn, bsz))
-        if vm_filter and not vm_filter(bvm):
+        bns_used.add((bn, sz))
+        if vm_filter and not vm_filter(vm):
             continue
-        vms_used.add(bvm)
+        vms_used.add(vm)
+    print bns_used
 
     bns_used = list(bns_used)
     bns_used.sort()
@@ -80,27 +120,28 @@ def timings(benchmarks, out_path, width, bench_filter, vm_filter):
         f.write("\\begin{center}\n")
         f.write("\\begin{tabularx}{%s}{l" % width + ">{\\raggedleft}X@{\hspace{-5pt}}c@{\hspace{5pt}}X" * (len(bns_used)) + "}\n")
         f.write("\\toprule\n")
-        short_bns = list(set([bn.split("_")[0] for bn in bns_used]))
+        short_bns = list(set([bn for (bn, sz) in bns_used]))
         short_bns.sort()
         for short_bn in short_bns:
             f.write("& \\multicolumn{6}{c}{%s} " % BENCH_MAP[short_bn])
         f.write("\\\\\n")
-        for short_bn in bns_used:
-            t = short_bn.split("_")[1]
-            f.write("& \\multicolumn{3}{c}{%s} " % SIZE_MAP.get(t, t))
+        for bn, sz in bns_used:
+            f.write("& \\multicolumn{3}{c}{%s} " % SIZE_MAP.get(sz, sz))
         f.write("\\\\\n")
         f.write("\\midrule\n")
 
         vms_used = list(vms_used)
         vms_used.sort(lambda x, y: cmp(VMS_ORDER.index(x), VMS_ORDER.index(y)))
-        for vm in vms_used:
-            f.write("%s" % VMS_MAP[vm])
-            for bn in bns_used:
-                mean, stddev = benchmarks.get("%s_%s" % (bn, vm)) or [None, None]
-                if mean is None:
-                    f.write(" & & - &")
+        for dvm in vms_used:
+            f.write("%s" % VMS_MAP[dvm])
+            for dbn, dsz in bns_used:
+                for vm, bn, sz, mean, conf in benchmarks:
+                    if dvm == vm and dbn == bn and dsz == sz:
+                        f.write(" & \\multicolumn{1}{r}{%0.3f} & \\tiny{$\pm$} & \\tiny{%0.3f}" % (mean, conf))
+                        break
                 else:
-                    f.write(" & \\multicolumn{1}{r}{%0.2f} & \\tiny{$\pm$} & \\tiny{%0.2f}" % (mean, stddev))
+                    print "blank"
+                    f.write(" & & - &")
             f.write("\\\\\n")
 
         f.write("\\bottomrule\n")
