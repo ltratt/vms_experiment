@@ -35,8 +35,8 @@ execute:
 
   $ ./loc.sh
 
-Note that "build.sh" has not previously been run, "build.sh" will be executed
-to download all the VMs.
+If "build.sh" has not previously been run, "build.sh" will automatically be
+executed to download all the VMs.
 
 =============================================================================
   Licensing
