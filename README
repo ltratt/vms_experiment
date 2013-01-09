@@ -20,9 +20,11 @@ In general you can simply execute make:
 
 This will build the necessary software (which takes approximately 1-2 hours)
 and then run the experiments. These default to 30 repetitions of each
-benchmark, for a rough running time of 4-7 days. If you want a shorter run, you
+benchmark, for a rough running time of 3-7 days. If you want a shorter run, you
 can edit the REPS parameter at the top of run_benchmarks.sh (minimum value is
-1). When complete, you will see the results in the "results" file.
+1). When complete, you will see the raw output from multitime in the "results"
+file; if you have Python installed, a pretty-printed HTML version of the
+results can be found in results.html.
 
 
 =============================================================================
