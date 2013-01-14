@@ -4,7 +4,7 @@
 # This file takes in the "results" output from multitime, processes it, and
 # outputs HTML (by default) or LaTeX files (suitable for inclusion into a paper).
 #
-# python tabulate.py [latex]
+# python format_results.py [latex]
 #
 
 import os, re, stat, subprocess, sys, time
