@@ -14,6 +14,7 @@ check_for git
 check_for hg
 check_for python
 check_for svn
+check_for unzip
 which pypy > /dev/null 2> /dev/null
 if [ $? -eq 0 ]; then
     PYTHON=`which pypy`
