@@ -62,6 +62,7 @@ benchmark () {
             *.rb )
               echo "-q $WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $2" >> $BATCHF
               echo "-q $WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $2" >> $BATCHF
+              echo "-q $WRKDIR/topaz/bin/topaz $leaf $2" >> $BATCHF
         esac
     done
 }
@@ -101,6 +102,7 @@ benchmark_pipein () {
             *.rb )
               echo "-q -i \"cat $3\" $WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $2" >> $BATCHF
               echo "-q -i \"cat $3\" $WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $2" >> $BATCHF
+              echo "-q -i \"cat $3\" $WRKDIR/topaz/bin/topaz $leaf $2" >> $BATCHF
         esac
     done
 }
