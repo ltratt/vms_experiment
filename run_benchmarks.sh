@@ -9,40 +9,40 @@ RESULTSF="$WRKDIR/results"
 
 while (( $# )); do
     case "$1" in
-	--target|-t)
-	    EXECUTABLE="$2"
-	    CUSTOMFILEEXT="$3"
-	    shift 3
-	    ;;
-	--benchmark|-b)
-	    BENCHMARK="$2"
-	    shift 2
-	    ;;
-	--force|-f)
-	    rm -f "$RESULTSF"
-	    shift
-	    ;;
-	--repetitions|-r)
-	    REPS=$2
-	    shift 2
-	    ;;
-	--available-benchmarks)
-	    pushd $WRKDIR/benchmarks
-	    echo "Available benchmarks:"
-	    for i in *.py; do
-		echo "   ${i%*.py}"
-	    done
-	    popd
-	    exit 0
-	    ;;
-	*)
-	    echo "You can pass the following options:"
-	    echo "  --target|-t [FULLPATH] [EXT]   # EXT should be e.g. 'java' or 'rb'"
-	    echo "  --benchmark|-b [NAME]"
-	    echo "  --force|-f                     # overwrites any previous results"
-	    echo "  --repetitions|-r [NUMBER]"
-	    exit 0
-	    ;;
+        --target|-t)
+            EXECUTABLE="$2"
+            CUSTOMFILEEXT="$3"
+            shift 3
+            ;;
+        --benchmark|-b)
+            BENCHMARK="$2"
+            shift 2
+            ;;
+        --force|-f)
+            rm -f "$RESULTSF"
+            shift
+            ;;
+        --repetitions|-r)
+            REPS=$2
+            shift 2
+            ;;
+        --available-benchmarks)
+            pushd $WRKDIR/benchmarks
+            echo "Available benchmarks:"
+            for i in *.py; do
+                echo "   ${i%*.py}"
+            done
+            popd
+            exit 0
+            ;;
+        *)
+            echo "You can pass the following options:"
+            echo "  --target|-t [FULLPATH] [EXT]   # EXT should be e.g. 'java' or 'rb'"
+            echo "  --benchmark|-b [NAME]"
+            echo "  --force|-f                     # overwrites any previous results"
+            echo "  --repetitions|-r [NUMBER]"
+            exit 0
+            ;;
     esac
 done
 
@@ -65,22 +65,22 @@ benchmark () {
     name=$1
     count=$2
     if [ $# -eq 3 ]; then
-	pipe="-i \"cat $3\""
+        pipe="-i \"cat $3\""
     else
-	pipe=""
+        pipe=""
     fi
 
     for leaf in `ls $name.* | sort`; do
         result_file=$WRKDIR/results/$leaf_$name
         leaf_ne=`echo $leaf | cut -d "." -f 1`
-	leaf_ext=`echo $leaf | cut -d "." -f 2`
-	if [ -n "$BENCHMARK" -a "$BENCHMARK" != "$leaf_ne" ]; then
-	    continue
-	fi
-	if [ -n "$CUSTOMFILEEXT" -a "$CUSTOMFILEEXT" != "$leaf_ext" ]; then
-	    continue
-	fi
-	unset cmds
+        leaf_ext=`echo $leaf | cut -d "." -f 2`
+        if [ -n "$BENCHMARK" -a "$BENCHMARK" != "$leaf_ne" ]; then
+            continue
+        fi
+        if [ -n "$CUSTOMFILEEXT" -a "$CUSTOMFILEEXT" != "$leaf_ext" ]; then
+            continue
+        fi
+        unset cmds
         case $leaf in
             *.c )
               if [ $leaf = "dhrystone.c" ]; then
@@ -98,7 +98,7 @@ benchmark () {
               ;;
             *.cv )
               cmds[0]="-r \"$WRKDIR/converge2/vm/converge $WRKDIR/converge2/compiler/convergec -fm $leaf\" $WRKDIR/converge2/vm/converge $leaf_ne $count"
-	      if [ $leaf != "fannkuchredux.cv" ]; then
+              if [ $leaf != "fannkuchredux.cv" ]; then
                   # fannkuchredux causes converge1 to crash; we therefore don't
                   # bother running it.
                   cmds[1]="-r \"$WRKDIR/converge1/vm/converge $WRKDIR/converge1/compiler/convergec -fm $leaf\" $WRKDIR/converge1/vm/converge $leaf_ne $count"
@@ -124,13 +124,13 @@ benchmark () {
               cmds[2]="-q $WRKDIR/topaz/bin/topaz $leaf $count"
         esac
 
-	if [ -z "$EXECUTABLE" ]; then
-	    for i in "${cmds[@]}"; do
-		echo "-q $pipe $i" >> $BATCHF
-	    done
-	else
-	    echo "-q $pipe $EXECUTABLE $leaf $count" >> $BATCHF
-	fi
+        if [ -z "$EXECUTABLE" ]; then
+            for i in "${cmds[@]}"; do
+                echo "-q $pipe $i" >> $BATCHF
+            done
+        else
+            echo "-q $pipe $EXECUTABLE $leaf $count" >> $BATCHF
+        fi
     done
 }
 
