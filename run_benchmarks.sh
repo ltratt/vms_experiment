@@ -1,13 +1,53 @@
-#! /bin/sh
+#!/bin/bash
 
 REPS=30
 
-WRKDIR=`pwd`
+OLDPWD=`pwd`
+WRKDIR=$(cd $(dirname $0) ; pwd)
 BATCHF="$WRKDIR/batchf"
 RESULTSF="$WRKDIR/results"
 
-if [ ! -f multitime ]; then
-    $SHELL ./build.sh || exit $?
+while (( $# )); do
+    case "$1" in
+	--target|-t)
+	    EXECUTABLE="$2"
+	    CUSTOMFILEEXT="$3"
+	    shift 3
+	    ;;
+	--benchmark|-b)
+	    BENCHMARK="$2"
+	    shift 2
+	    ;;
+	--force|-f)
+	    rm -f "$RESULTSF"
+	    shift
+	    ;;
+	--repetitions|-r)
+	    REPS=$2
+	    shift 2
+	    ;;
+	--available-benchmarks)
+	    pushd $WRKDIR/benchmarks
+	    echo "Available benchmarks:"
+	    for i in *.py; do
+		echo "   ${i%*.py}"
+	    done
+	    popd
+	    exit 0
+	    ;;
+	*)
+	    echo "You can pass the following options:"
+	    echo "  --target|-t [FULLPATH] [EXT]   # EXT should be e.g. 'java' or 'rb'"
+	    echo "  --benchmark|-b [NAME]"
+	    echo "  --force|-f                     # overwrites any previous results"
+	    echo "  --repetitions|-r [NUMBER]"
+	    exit 0
+	    ;;
+    esac
+done
+
+if [ ! -f $WRKDIR/multitime ]; then
+    $SHELL $WRKDIR/build.sh || exit $?
 fi
 
 if [ -f $RESULTSF ]; then
@@ -22,90 +62,78 @@ if [ "X$CC" = "X" ]; then
 fi
 
 benchmark () {
-    for leaf in `ls $1.* | sort`; do
-        result_file=$WRKDIR/results/$leaf_$1
+    name=$1
+    count=$2
+    if [ $# -eq 3 ]; then
+	pipe="-i \"cat $3\""
+    else
+	pipe=""
+    fi
+
+    for leaf in `ls $name.* | sort`; do
+        result_file=$WRKDIR/results/$leaf_$name
         leaf_ne=`echo $leaf | cut -d "." -f 1`
-        echo $leaf
+	leaf_ext=`echo $leaf | cut -d "." -f 2`
+	if [ -n "$BENCHMARK" -a "$BENCHMARK" != "$leaf_ne" ]; then
+	    continue
+	fi
+	if [ -n "$CUSTOMFILEEXT" -a "$CUSTOMFILEEXT" != "$leaf_ext" ]; then
+	    continue
+	fi
+	unset cmds
         case $leaf in
             *.c )
               if [ $leaf = "dhrystone.c" ]; then
                   $CC -O3 -o dhrystone_c dhrystone.c dhry_2.c || exit $?
               elif [ $leaf = "binarytrees.c" -o $leaf = "nbody.c" -o $leaf = "spectralnorm.c" ]; then
                   $CC -O3 -o ${leaf_ne}_c $leaf -lm || exit $?
-              else
-                  $CC -O3 -o ${leaf_ne}_c $leaf || exit $?
-              fi
-              echo "-q ./${leaf_ne}_c $2" >> $BATCHF
-              ;;
-            *.cv )
-              if [ $leaf != "fannkuchredux.cv" ]; then
-                  # fannkuchredux causes converge1 to crash; we therefore don't
-                  # bother running it.
-                  echo "-q -r \"$WRKDIR/converge1/vm/converge $WRKDIR/converge1/compiler/convergec -fm $leaf\" $WRKDIR/converge1/vm/converge $leaf_ne $2" >> $BATCHF
-              fi
-              echo "-q -r \"$WRKDIR/converge2/vm/converge $WRKDIR/converge2/compiler/convergec -fm $leaf\" $WRKDIR/converge2/vm/converge $leaf_ne $2" >> $BATCHF
-              ;;
-            *.java )
-              javac $leaf || exit $?
-              echo "-q java -Xmx2500M `echo $leaf | cut -d "." -f 1` $2" >> $BATCHF
-              ;;
-            *.lua )
-              echo "-q $WRKDIR/lua/src/lua $leaf $2" >> $BATCHF
-              echo "-q $WRKDIR/luajit/src/luajit $leaf $2" >> $BATCHF
-              ;;
-            *.py )
-              echo "-q $WRKDIR/cpython/python $leaf $2" >> $BATCHF
-              echo "-q $WRKDIR/jython/bin/jython -J-Xmx2500M $leaf $2" >> $BATCHF
-              echo "-q $WRKDIR/pypy/pypy/translator/goal/pypy-jit-standard $leaf $2" >> $BATCHF
-              echo "-q $WRKDIR/pypy/pypy/translator/goal/pypy-jit-no-object-optimizations $leaf $2" >> $BATCHF
-              ;;
-            *.rb )
-              echo "-q $WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $2" >> $BATCHF
-              echo "-q $WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $2" >> $BATCHF
-              echo "-q $WRKDIR/topaz/bin/topaz $leaf $2" >> $BATCHF
-        esac
-    done
-}
-
-
-
-benchmark_pipein () {
-    for leaf in `ls $1.* | sort`; do
-        result_file=$WRKDIR/results/$leaf_$1
-        leaf_ne=`echo $leaf | cut -d "." -f 1`
-        echo $leaf
-        case $leaf in
-            *.c )
-              if [ $leaf = "knucleotide.c" -o $leaf = "revcomp.c" ]; then
+              elif [ $leaf = "knucleotide.c" -o $leaf = "revcomp.c" ]; then
                   $CC -O3 -std=c99 -o ${leaf_ne}_c $leaf -lpthread || exit $?
               elif [ $leaf = "regexdna.c" ]; then
                   $CC -O3 -o ${leaf_ne}_c regexdna.c -lpcre || exit $?
               else
                   $CC -O3 -o ${leaf_ne}_c $leaf || exit $?
               fi
-              echo "-q -i \"cat $3\" ./${leaf_ne}_c $2" >> $BATCHF
+              cmds[0]="$WRKDIR/benchmarks/${leaf_ne}_c $count"
+              ;;
+            *.cv )
+              cmds[0]="-r \"$WRKDIR/converge2/vm/converge $WRKDIR/converge2/compiler/convergec -fm $leaf\" $WRKDIR/converge2/vm/converge $leaf_ne $count"
+	      if [ $leaf != "fannkuchredux.cv" ]; then
+                  # fannkuchredux causes converge1 to crash; we therefore don't
+                  # bother running it.
+                  cmds[1]="-r \"$WRKDIR/converge1/vm/converge $WRKDIR/converge1/compiler/convergec -fm $leaf\" $WRKDIR/converge1/vm/converge $leaf_ne $count"
+              fi
               ;;
             *.java )
               javac $leaf || exit $?
-              echo "-q -i \"cat $3\" java -Xmx2500M `echo $leaf | cut -d "." -f 1` $2" >> $BATCHF
+              cmds[0]="java -Xmx2500M `echo $leaf | cut -d "." -f 1` $count"
               ;;
             *.lua )
-              echo "-q -i \"cat $3\" $WRKDIR/lua/src/lua $leaf $2" >> $BATCHF
-              echo "-q -i \"cat $3\" $WRKDIR/luajit/src/luajit $leaf $2" >> $BATCHF
+              cmds[0]="-q $WRKDIR/lua/src/lua $leaf $count"
+              cmds[1]="-q $WRKDIR/luajit/src/luajit $leaf $count"
               ;;
             *.py )
-              echo "-q -i \"cat $3\" $WRKDIR/cpython/python $leaf $2" >> $BATCHF
-              echo "-q -i \"cat $3\" $WRKDIR/jython/bin/jython -J-Xmx2500M $leaf $2" >> $BATCHF
-              echo "-q -i \"cat $3\" $WRKDIR/pypy/pypy/translator/goal/pypy-jit-standard $leaf $2" >> $BATCHF
-              echo "-q -i \"cat $3\" $WRKDIR/pypy/pypy/translator/goal/pypy-jit-no-object-optimizations $leaf $2" >> $BATCHF
+              cmds[0]="$WRKDIR/cpython/python $leaf $count"
+              cmds[1]="$WRKDIR/jython/bin/jython -J-Xmx2500M $leaf $count"
+              cmds[2]="$WRKDIR/pypy/pypy/translator/goal/pypy-jit-standard $leaf $count"
+              cmds[3]="$WRKDIR/pypy/pypy/translator/goal/pypy-jit-no-object-optimizations $leaf $count"
               ;;
             *.rb )
-              echo "-q -i \"cat $3\" $WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $2" >> $BATCHF
-              echo "-q -i \"cat $3\" $WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $2" >> $BATCHF
-              echo "-q -i \"cat $3\" $WRKDIR/topaz/bin/topaz $leaf $2" >> $BATCHF
+              cmds[0]="$WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $count"
+              cmds[1]="$WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $count"
+              cmds[2]="-q $WRKDIR/topaz/bin/topaz $leaf $count"
         esac
+
+	if [ -z "$EXECUTABLE" ]; then
+	    for i in "${cmds[@]}"; do
+		echo "-q $pipe $i" >> $BATCHF
+	    done
+	else
+	    echo "-q $pipe $EXECUTABLE $leaf $count" >> $BATCHF
+	fi
     done
 }
+
 
 echo "===> Creating test sets"
 
@@ -131,16 +159,16 @@ benchmark fannkuchredux 10
 benchmark fannkuchredux 11
 benchmark fasta 5000000
 benchmark fasta 50000000
-benchmark_pipein knucleotide 0 input1000000.txt
-benchmark_pipein knucleotide 0 input10000000.txt
+benchmark knucleotide 0 input1000000.txt
+benchmark knucleotide 0 input10000000.txt
 benchmark mandelbrot 500
 benchmark mandelbrot 5000
 benchmark nbody 2500000
 benchmark nbody 25000000
-benchmark_pipein regexdna 0 input1000000.txt
-benchmark_pipein regexdna 0 input10000000.txt
-benchmark_pipein revcomp 0 input1000000.txt
-benchmark_pipein revcomp 0 input10000000.txt
+benchmark regexdna 0 input1000000.txt
+benchmark regexdna 0 input10000000.txt
+benchmark revcomp 0 input1000000.txt
+benchmark revcomp 0 input10000000.txt
 benchmark richards 10
 benchmark richards 100
 benchmark spectralnorm 500
@@ -150,3 +178,5 @@ echo "===> Running benchmarks"
 
 cd $WRKDIR/benchmarks
 RUBYOPT="" $WRKDIR/supuner -e -o $RESULTSF $WRKDIR/multitime -v -n $REPS -b $BATCHF
+
+cd $OLDPWD
