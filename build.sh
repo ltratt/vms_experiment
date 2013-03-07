@@ -226,6 +226,19 @@ cd ruby
 $MYMAKE || exit $?
 
 
+# Topaz
+
+echo "\\n===> Download and build Topaz\\n"
+sleep 3
+cd $wrkdir
+topaz_url="http://builds.topazruby.com/"
+topaz_package_file="$(curl "$topaz_url" | \grep -Eo "topaz-linux64-[^.]+\.tar\.bz2" | head -1)"
+wget "${topaz_url}${topaz_package_file}" || exit $?
+tar xfj "$topaz_package_file"
+rm "$topaz_package_file"
+topaz/bin/topaz -e "p 'Succesfully downloaded Topaz'" || exit $?
+
+
 # Download the remaining benchmarks
 
 echo "\\n===> Download and build misc benchmarks\\n"
