@@ -109,8 +109,8 @@ benchmark () {
               cmds[0]="java -Xmx2500M `echo $leaf | cut -d "." -f 1` $count"
               ;;
             *.lua )
-              cmds[0]="-q $WRKDIR/lua/src/lua $leaf $count"
-              cmds[1]="-q $WRKDIR/luajit/src/luajit $leaf $count"
+              cmds[0]="$WRKDIR/lua/src/lua $leaf $count"
+              cmds[1]="$WRKDIR/luajit/src/luajit $leaf $count"
               ;;
             *.py )
               cmds[0]="$WRKDIR/cpython/python $leaf $count"
@@ -121,7 +121,7 @@ benchmark () {
             *.rb )
               cmds[0]="$WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $count"
               cmds[1]="$WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $count"
-              cmds[2]="-q $WRKDIR/topaz/bin/topaz $leaf $count"
+              cmds[2]="$WRKDIR/topaz/bin/topaz $leaf $count"
         esac
 
         if [ -z "$EXECUTABLE" ]; then
