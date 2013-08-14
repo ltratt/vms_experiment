@@ -113,9 +113,9 @@ $MYMAKE || exit $?
 echo "\\n===> Download and build CPython\\n"
 sleep 3
 cd $wrkdir
-wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2 || exit $?
-bunzip2 -c - Python-2.7.3.tar.bz2 | tar xf -
-mv Python-2.7.3 cpython
+wget http://python.org/ftp/python/2.7.5/Python-2.7.5.tar.bz2 || exit $?
+bunzip2 -c - Python-2.7.5.tar.bz2 | tar xf -
+mv Python-2.7.5 cpython
 cd cpython
 ./configure || exit $?
 $MYMAKE || exit $?
@@ -127,13 +127,13 @@ cp $wrkdir/cpython/Lib/test/pystone.py $wrkdir/benchmarks/dhrystone.py
 echo "\\n===> Download and build JRuby\\n"
 sleep 3
 cd $wrkdir
-wget http://jruby.org.s3.amazonaws.com/downloads/1.7.1/jruby-bin-1.7.1.tar.gz || exit $?
-tar xfz jruby-bin-1.7.1.tar.gz
+wget http://jruby.org.s3.amazonaws.com/downloads/1.7.4/jruby-bin-1.7.4.tar.gz || exit $?
+tar xfz jruby-bin-1.7.4.tar.gz
 git clone git://github.com/jruby/jruby.git || exit $?
 mv jruby jruby_src
-mv jruby-1.7.1 jruby
+mv jruby-1.7.4 jruby
 cd jruby_src
-git checkout 1.7.1
+git checkout 1.7.4
 
 
 # Jython
@@ -157,9 +157,9 @@ unzip -f ../jython-2.5.3-sources.jar
 echo "\\n===> Download and build Lua\\n"
 sleep 3
 cd $wrkdir
-wget http://www.lua.org/ftp/lua-5.2.1.tar.gz || exit $?
-tar xfz lua-5.2.1.tar.gz
-mv lua-5.2.1 lua
+wget http://www.lua.org/ftp/lua-5.2.2.tar.gz || exit $?
+tar xfz lua-5.2.2.tar.gz
+mv lua-5.2.2 lua
 cd lua
 case `uname -s` in
     *BSD) $MYMAKE bsd || exit $?;;
@@ -174,9 +174,9 @@ esac
 echo "\\n===> Download and build LuaJIT\\n"
 sleep 3
 cd $wrkdir
-wget http://luajit.org/download/LuaJIT-2.0.0.tar.gz || exit $?
-tar xfz LuaJIT-2.0.0.tar.gz
-mv LuaJIT-2.0.0 luajit
+wget http://luajit.org/download/LuaJIT-2.0.2.tar.gz || exit $?
+tar xfz LuaJIT-2.0.2.tar.gz
+mv LuaJIT-2.0.2 luajit
 cd luajit
 $MYMAKE || exit $?
 
@@ -186,16 +186,21 @@ $MYMAKE || exit $?
 echo "\\n===> Download PyPy\\n"
 sleep 3
 cd $wrkdir
-wget https://bitbucket.org/pypy/pypy/get/release-1.9.tar.bz2 || exit $?
-bunzip2 -c - release-1.9.tar.bz2 | tar xf -
-mv pypy-pypy-* pypy
-cd pypy/pypy/translator/goal/
+wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.1-src.tar.bz2 || exit $?
+bunzip2 -c - pypy-2.1-src.tar.bz2 | tar xf -
+mv pypy-2.1-src pypy
+cd pypy/pypy/goal/
 echo "\\n===> Build normal PyPy\\n"
 sleep 3
-$PYTHON translate.py -Ojit --output=pypy-jit-standard || exit $?
+usession=`mktemp -d`
+PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -Ojit --output=pypy-jit-standard || exit $?
 echo "\\n===> Build PyPy without optimisations\\n"
 sleep 3
-$PYTHON translate.py -O2 --translation-jit  --output=pypy-jit-no-object-optimizations targetpypystandalone.py --no-objspace-std-withcelldict --no-objspace-std-withmapdict --no-objspace-std-withmethodcache || exit $?
+PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -O2 --translation-jit \
+  --output=pypy-jit-no-object-optimizations targetpypystandalone.py \
+  --no-objspace-std-withcelldict --no-objspace-std-withmapdict \
+  --no-objspace-std-withmethodcache || exit $?
+rm -rf $usession
 
 
 # Converge 2
@@ -205,12 +210,14 @@ $PYTHON translate.py -O2 --translation-jit  --output=pypy-jit-no-object-optimiza
 echo "\\n===> Download and build Converge 2\\n"
 sleep 3
 cd $wrkdir
-wget http://convergepl.org/releases/2.0/converge-2.0.tar.bz2 || exit $?
-bunzip2 -c - converge-2.0.tar.bz2 | tar xf -
-mv converge-2.0 converge2
+git clone https://github.com/ltratt/converge.git || exit $?
+mv converge converge2
 cd converge2
+git diff ae1e0c25 d9329ca0 | patch -f vm/VM.py # Needed to compile with PyPy 2.1
+usession=`mkdir -d`
 PYPY_SRC=$wrkdir/pypy/ ./configure || exit $?
-$MYMAKE regress || exit $?
+PYPY_USESSION_DIR=$usession $MYMAKE || exit $?
+rm -rf $usession
 
 
 # Ruby
@@ -218,9 +225,9 @@ $MYMAKE regress || exit $?
 echo "\\n===> Download and build Ruby\\n"
 sleep 3
 cd $wrkdir
-wget http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p327.tar.gz || exit $?
-tar xfz ruby-1.9.3-p327.tar.gz
-mv ruby-1.9.3-p327 ruby
+wget ftp://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.gz || exit $?
+tar xfz ruby-2.0.0-p247.tar.gz
+mv ruby-2.0.0-p247 ruby
 cd ruby
 ./configure || exit $?
 $MYMAKE || exit $?
@@ -232,7 +239,8 @@ echo "\\n===> Download and build Topaz\\n"
 sleep 3
 cd $wrkdir
 topaz_url="http://builds.topazruby.com/"
-topaz_package_file="$(curl "$topaz_url" | \grep -Eo "topaz-linux64-[^.]+\.tar\.bz2" | head -1)"
+topaz_package_file="$(wget -q -O - http://builds.topazruby.com/ | \
+  grep -Eo 'topaz-linux64-[^.]+\.tar\.bz2' | head -1)"
 wget "${topaz_url}${topaz_package_file}" || exit $?
 tar xfj "$topaz_package_file"
 rm "$topaz_package_file"

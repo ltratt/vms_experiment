@@ -115,8 +115,8 @@ benchmark () {
             *.py )
               cmds[0]="$WRKDIR/cpython/python $leaf $count"
               cmds[1]="$WRKDIR/jython/bin/jython -J-Xmx2500M $leaf $count"
-              cmds[2]="$WRKDIR/pypy/pypy/translator/goal/pypy-jit-standard $leaf $count"
-              cmds[3]="$WRKDIR/pypy/pypy/translator/goal/pypy-jit-no-object-optimizations $leaf $count"
+              cmds[2]="$WRKDIR/pypy/pypy/goal/pypy-jit-standard $leaf $count"
+              cmds[3]="$WRKDIR/pypy/pypy/goal/pypy-jit-no-object-optimizations $leaf $count"
               ;;
             *.rb )
               cmds[0]="$WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $count"
@@ -138,8 +138,8 @@ benchmark () {
 echo "===> Creating test sets"
 
 cd $WRKDIR/benchmarks
-$WRKDIR/pypy/pypy/translator/goal/pypy-jit-standard fasta.py 1000000  > input1000000.txt
-$WRKDIR/pypy/pypy/translator/goal/pypy-jit-standard fasta.py 10000000 > input10000000.txt
+$WRKDIR/pypy/pypy/goal/pypy-jit-standard fasta.py 1000000  > input1000000.txt
+$WRKDIR/pypy/pypy/goal/pypy-jit-standard fasta.py 10000000 > input10000000.txt
 
 # Make Jython bootstrap its libraries (only happens once)
 
