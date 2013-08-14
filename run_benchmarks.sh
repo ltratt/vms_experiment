@@ -121,7 +121,7 @@ benchmark () {
             *.rb )
               cmds[0]="$WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $count"
               cmds[1]="$WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $count"
-              cmds[2]="$WRKDIR/topaz/bin/topaz $leaf $count"
+              #cmds[2]="$WRKDIR/topaz/bin/topaz $leaf $count"
         esac
 
         if [ -z "$EXECUTABLE" ]; then
