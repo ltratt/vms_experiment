@@ -22,10 +22,13 @@ VMS_MAP = {
   "luajit"        : "LuaJIT",
   "pypy-jit-no-object-optimizations" : "PyPy--nonopt",
   "pypy-jit-standard" : "PyPy",
-  "ruby"          : "Ruby"
+  "ruby"          : "Ruby",
+  "topasz"        : "Topasz",
+  "d8"            : "V8"
 }
-VMS_ORDER=["c", "java", "converge1", "converge2", "lua", "luajit", "cpython", \
-  "jython", "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby"]
+VMS_ORDER=["c", "java", "converge1", "converge2", "d8", "lua", "luajit", "cpython", \
+  "jython", "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby", \
+  "topasz"]
 BENCH_MAP = {
   "binarytrees"   : "Binary Trees",
   "dhrystone"     : "Dhrystone",

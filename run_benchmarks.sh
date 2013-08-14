@@ -108,6 +108,9 @@ benchmark () {
               javac $leaf || exit $?
               cmds[0]="java -Xmx2500M `echo $leaf | cut -d "." -f 1` $count"
               ;;
+            *.js )
+              cmds[0]="$WRKDIR/v8/out/native/d8 $leaf -- $count"
+              ;;
             *.lua )
               cmds[0]="$WRKDIR/lua/src/lua $leaf $count"
               cmds[1]="$WRKDIR/luajit/src/luajit $leaf $count"
