@@ -14,10 +14,10 @@ while (( $# )); do
             CUSTOMFILEEXT="$3"
             shift 3
             ;;
-	--language|-l)
-	    CUSTOMFILEEXT="$2"
-	    shift 2
-	    ;;
+        --language|-l)
+            CUSTOMFILEEXT="$2"
+            shift 2
+            ;;
         --benchmark|-b)
             BENCHMARK="$2"
             shift 2
