@@ -14,6 +14,10 @@ while (( $# )); do
             CUSTOMFILEEXT="$3"
             shift 3
             ;;
+        --language|-l)
+            CUSTOMFILEEXT="$2"
+            shift 2
+            ;;
         --benchmark|-b)
             BENCHMARK="$2"
             shift 2
@@ -124,7 +128,12 @@ benchmark () {
             *.rb )
               cmds[0]="$WRKDIR/jruby/bin/jruby -Xcompile.invokedynamic=true -J-Xmx2500M $leaf $count"
               cmds[1]="$WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $count"
-              #cmds[2]="$WRKDIR/topaz/bin/topaz $leaf $count"
+              case $leaf in
+                  # only these work on Topaz right now
+                  binarytrees.rb|dhrystone.rb|mandelbrot.rb)
+                      cmds[2]="$WRKDIR/topaz/bin/topaz $leaf $count"
+                      ;;
+              esac
         esac
 
         if [ -z "$EXECUTABLE" ]; then
