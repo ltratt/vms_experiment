@@ -213,6 +213,7 @@ cd $wrkdir
 git clone https://github.com/ltratt/converge.git || exit $?
 mv converge converge2
 cd converge2
+git checkout 52bc61a3
 git diff ae1e0c25 d9329ca0 | patch -f vm/VM.py # Needed to compile with PyPy 2.1
 usession=`mkdir -d`
 PYPY_SRC=$wrkdir/pypy/ ./configure || exit $?
