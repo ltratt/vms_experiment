@@ -130,7 +130,7 @@ benchmark () {
               cmds[1]="$WRKDIR/ruby/ruby -I $WRKDIR/ruby/ -I $WRKDIR/ruby/lib $leaf $count"
               case $leaf in
                   # only these work on Topaz right now
-                  binarytrees.rb|dhrystone.rb|mandelbrot.rb)
+                  binarytrees.rb|dhrystone.rb|mandelbrot.rb|richards.rb)
                       cmds[2]="$WRKDIR/topaz/bin/topaz $leaf $count"
                       ;;
               esac
