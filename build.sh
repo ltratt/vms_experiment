@@ -239,10 +239,9 @@ $MYMAKE || exit $?
 echo "\\n===> Download and build Topaz\\n"
 sleep 3
 cd $wrkdir
-topaz_url="http://builds.topazruby.com/"
-topaz_package_file="$(wget -q -O - http://builds.topazruby.com/ | \
-  grep -Eo 'topaz-linux64-[^.]+\.tar\.bz2' | head -1)"
-wget "${topaz_url}${topaz_package_file}" || exit $?
+topaz_url="http://topazruby.com/builds/linux64/latest/"
+topaz_package_file="topaz.tar.bz2"
+wget "${topaz_url}" -O "$topaz_package_file" || exit $?
 tar xfj "$topaz_package_file"
 rm "$topaz_package_file"
 topaz/bin/topaz -e "p 'Succesfully downloaded Topaz'" || exit $?
