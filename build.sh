@@ -52,7 +52,7 @@ fi
 cat << EOF
 In order to build these benchmarks, you need to agree to the licensing terms
 of the Java Richards benchmark at:
-  http://labs.oracle.com/people/mario/java_benchmarking/download.html
+  http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
 EOF
 echo -n "Have you read and agreed to these terms? [Ny] "
 read answer
@@ -266,7 +266,7 @@ echo "\\n===> Download and build misc benchmarks\\n"
 
 t=`mktemp -d`
 cd $t
-wget http://labs.oracle.com/people/mario/java_benchmarking/richdbsrc.zip || exit $?
+wget http://www.wolczko.com/richdbsrc.zip || exit $?
 unzip richdbsrc.zip || exit $?
 mv Benchmark.java Program.java COM/sun/labs/kanban/richards_deutsch_acc_virtual/ || exit $?
 cd COM/sun/labs/kanban/richards_deutsch_acc_virtual || exit $?
