@@ -41,10 +41,11 @@ while (( $# )); do
             ;;
         *)
             echo "You can pass the following options:"
-            echo "  --target|-t [FULLPATH] [EXT]   # EXT should be e.g. 'java' or 'rb'"
-            echo "  --benchmark|-b [NAME]"
+            echo "  --benchmark|-b <NAME>"
             echo "  --force|-f                     # overwrites any previous results"
-            echo "  --repetitions|-r [NUMBER]"
+            echo "  --language|-l <EXT>            # EXT should be e.g. 'java' or 'rb'"
+            echo "  --repetitions|-r <NUMBER>"
+            echo "  --target|-t <FULLPATH> <EXT>   # EXT should be e.g. 'java' or 'rb'"
             exit 0
             ;;
     esac
