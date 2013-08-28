@@ -11,24 +11,24 @@ import os, re, stat, subprocess, sys, time
 
 RESULTS_PATH = "results"
 VMS_MAP = {
-  "c"             : "C",
-  "java"          : "HotSpot",
-  "converge1"     : "Converge1",
-  "converge2"     : "Converge2",
-  "cpython"       : "CPython",
-  "jruby"         : "JRuby",
-  "jython"        : "Jython",
-  "lua"           : "Lua",
-  "luajit"        : "LuaJIT",
-  "pypy-jit-no-object-optimizations" : "PyPy--nonopt",
-  "pypy-jit-standard" : "PyPy",
-  "ruby"          : "Ruby",
-  "topasz"        : "Topasz",
-  "d8"            : "V8"
+  "c"             : "GCC (4.7.2)",
+  "java"          : "HotSpot (1.7.0_09)",
+  "converge1"     : "Converge1 (git 68c795d2be)",
+  "converge2"     : "Converge2 (git 52bc61a3)",
+  "cpython"       : "CPython (2.7.5)",
+  "jruby"         : "JRuby (1.7.4)",
+  "jython"        : "Jython (2.5.3)",
+  "lua"           : "Lua (5.2.2)",
+  "luajit"        : "LuaJIT (2.0.2)",
+  "pypy-jit-no-object-optimizations" : "PyPy--nonopt (2.1)",
+  "pypy-jit-standard" : "PyPy (2.1)",
+  "ruby"          : "Ruby (2.0.0-p247)",
+  "topaz"         : "Topaz (nightly)",
+  "d8"            : "V8 (3.20.15)"
 }
 VMS_ORDER=["c", "java", "converge1", "converge2", "d8", "lua", "luajit", "cpython", \
   "jython", "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby", \
-  "topasz"]
+  "topaz"]
 BENCH_MAP = {
   "binarytrees"   : "Binary Trees",
   "dhrystone"     : "Dhrystone",
@@ -137,7 +137,8 @@ def latex_timings(benchmarks, outp, width, bench_filter, vm_filter):
         vms_used = list(vms_used)
         vms_used.sort(lambda x, y: cmp(VMS_ORDER.index(x), VMS_ORDER.index(y)))
         for dvm in vms_used:
-            f.write("%s" % VMS_MAP[dvm])
+            safe_dvm = VMS_MAP[dvm].replace("#", "\\#").replace("_", "\\_")
+            f.write("%s" % safe_dvm)
             for dbn, dsz in bns_used:
                 for vm, bn, sz, mean, conf in benchmarks:
                     if dvm == vm and dbn == bn and dsz == sz:
@@ -207,7 +208,7 @@ The results here come from a <code>results</code> file last modified at %s.
             if i > 0:
                 f.write("<tr><td>&nbsp;</td></tr>")
             
-            bns = bns_used[i : i + 6]
+            bns = bns_used[i : i + 4]
 
             f.write("""<tr class="top-rule"><td></td>""")
             short_bns = list(set([bn for (bn, sz) in bns]))
@@ -258,7 +259,7 @@ The results here come from a <code>results</code> file last modified at %s.
 
             f.write("")
 
-            i += 6
+            i += 4
 
         f.write("</table>\n")
         
