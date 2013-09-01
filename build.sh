@@ -102,7 +102,7 @@ mv converge converge1
 cp -rp converge-1.2.x/bootstrap/32bit_little_endian/* converge1/bootstrap/32bit_little_endian/
 cd converge1
 git checkout converge-1.x
-git checkout 68c795d2be
+git checkout 14563464
 make -f Makefile.bootstrap || exit $?
 ./configure || exit $?
 $MYMAKE || exit $?

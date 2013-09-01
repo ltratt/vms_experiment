@@ -13,7 +13,7 @@ RESULTS_PATH = "results"
 VMS_MAP = {
   "c"             : "GCC (4.7.2)",
   "java"          : "HotSpot (1.7.0_09)",
-  "converge1"     : "Converge1 (git 68c795d2be)",
+  "converge1"     : "Converge1 (git 14563464)",
   "converge2"     : "Converge2 (git 52bc61a3)",
   "cpython"       : "CPython (2.7.5)",
   "jruby"         : "JRuby (1.7.4)",
