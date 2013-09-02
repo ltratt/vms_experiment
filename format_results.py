@@ -193,8 +193,53 @@ This page is an auto-generated pretty printing of the results of running the
 experiments that form part of the paper <a
 href="http://tratt.net/laurie/research/publications/files/metatracing_vms/">
 The Impact of Meta-Tracing on VM Design and Implementation</a> by Carl
-Friedrich Bolz and Laurence Tratt. The <code>dmesg</code> for the machine
-used to produce these results can be seen below.
+Friedrich Bolz and Laurence Tratt. The <a href="#methodology">methodology</a>
+for the experiment and <a href="#dmesg"><code>dmesg</code></a> for the
+machine used to produce these results can be seen below. The
+latest version of the experiment, including the source code of the
+benchmarking suite and benchmarks, can be found <a
+href="http://tratt.net/laurie/research/pubs/files/metatracing_vms/">here</a>.
+
+
+<h3><a name="methodology">Methodology</a></h3>
+
+<p>The overall aim of this experiment is to better understand the relative
+performance of different VMs. Synthetic benchmarks are the only plausible
+candidates for comparing VMs which implement different languages. We caution
+readers about over-interpreting results based on synthetic benchmarks, since
+they can easily be gamed by language implementers and are often not
+representative of real workloads. Nevertheless, they are currently our only
+option. We use a variety of such benchmarks to give a finer-grained view of
+VM performance. Many have their roots in the <a
+href="http://benchmarksgame.alioth.debian.org/">Computer Language Benchmarks
+Game</a>, though we have collected others from different sources. Where a
+language has several variants of a benchmark, we have tried to use the best
+performing version.
+
+<p>A fundamental problem when measuring JIT-based systems is whether to include
+warm-up time or not. JIT implementers often argue that warm-up times are
+irrelevant for long-running processes, and should be discounted. Others argue
+that many processes run for short time periods, and that warm-up
+times must be taken into account. We see merit in both
+arguments and therefore report two figures for each benchmark: <em>short</em>,
+where the benchmark has a low input size (e.g. 10 for Richards), and where
+warm-up times can play a significant part; and <em>long</em>, where a higher
+input size (e.g.~100 for Richards) tends to reduce the effect of warm-up
+times. Users who run batch jobs may find the former results more relevant;
+those who run long-running server processes the latter.
+
+<p>We ran all systems using the default options, with 3 exceptions. First, we used
+the <code>-O3</code> optimisation level for GCC. Second, we increased the memory
+available to the HotSpot-based VMs, as otherwise several of the benchmarks
+run out of memory. Third, we used the <code>-Xcompile.invokedynamic=true</code>
+option for JRuby to force the use of HotSpot's <code>invokedynamic</code>
+instruction, which is otherwise disabled on current versions of HotSpot.
+
+<p>We ran each version of the benchmark 30 times using
+<a href="http://tratt.net/laurie/src/multitime/"><code>multitime</code></a> to
+randomise the order of executions. We report the average wall time and
+confidence intervals with 95%% confidence levels.
+
 
 <h3>Experimental results</h3>
 
@@ -263,7 +308,12 @@ The results here come from a <code>results</code> file last modified at %s.
 
         f.write("</table>\n")
         
-        f.write("<h3>dmesg</h3>\n<pre>")
+        f.write("""
+<h3><a name="dmesg">dmesg</a></h3>
+
+<pre>
+""")
+        
         dm = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
         f.write(dm.stdout.read())
         f.write("</pre>\n</html>")
