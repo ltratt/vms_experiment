@@ -51,6 +51,7 @@ SIZE_MAP = {
 
 def read_data():
     benchmarks = []
+    raw_data = []
     with file("results") as f:
         d = []
         while 1:
@@ -66,6 +67,7 @@ def read_data():
                 break
             i += 1
         
+        raw_data = d[i:]
         while i < len(d):
             name = d[i]
             real_sp = re.split(" +", d[i + 2])
@@ -103,7 +105,7 @@ def read_data():
             
             i += 6
 
-    return benchmarks
+    return benchmarks, raw_data
 
 
 
@@ -155,7 +157,7 @@ def latex_timings(benchmarks, outp, width, bench_filter, vm_filter):
 
 
 
-def html_timings(benchmarks, outp):
+def html_timings(benchmarks, raw_data, outp):
     vms_used = set()
     bns_used = set()
     for vm, bn, sz, mean, conf in benchmarks: # Benchmark result leaf name, benchmark results
@@ -307,11 +309,21 @@ The results here come from a <code>results</code> file last modified at %s.
             i += 4
 
         f.write("</table>\n")
+
+        f.write("""
+<h3><a name="rawdata">Raw data</a></h3>
+
+<pre style="white-space: pre-wrap">
+""")
+        f.write("\n".join(raw_data))
         
         f.write("""
+</pre>
+
+
 <h3><a name="dmesg">dmesg</a></h3>
 
-<pre>
+<pre style="white-space: pre-wrap">
 """)
         
         dm = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
@@ -321,7 +333,7 @@ The results here come from a <code>results</code> file last modified at %s.
 
 
 
-benchmarks = read_data()
+benchmarks, raw_data = read_data()
 if "latex" in sys.argv:
     latex_timings(benchmarks, "abbrev.tex", "1.2\\textwidth", \
       lambda x: x in ["dhrystone", "fannkuchredux", "richards"], None)
@@ -338,4 +350,4 @@ if "latex" in sys.argv:
       lambda x: x in ["richards", "spectralnorm"], \
       lambda x: not "converge" in x)
 else:
-    html_timings(benchmarks, "results.html")
+    html_timings(benchmarks, raw_data, "results.html")
