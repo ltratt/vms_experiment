@@ -105,6 +105,8 @@ git checkout converge-1.x
 git checkout 14563464
 make -f Makefile.bootstrap || exit $?
 ./configure || exit $?
+# We need -lm here, and the order is important so we can't use LDFLAGS when configuring
+sed -i 's|LIBS=-L/usr/local/lib -lpcre -lxml2 -lcurses|LIBS=-L/usr/local/lib -lpcre -lxml2 -lcurses -lm|' vm/Makefile
 $MYMAKE || exit $?
 
 
