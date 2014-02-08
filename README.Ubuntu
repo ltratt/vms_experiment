@@ -1,0 +1,5 @@
+From a new install of Ubuntu 12.04 LTS (you will need the 64bit version), you
+can get all dependencies with:
+
+  $ sudo apt-get update
+  $ sudo apt-get install git make mercurial subversion unzip openjdk-7-jdk autoconf libpcre3-dev libexpat-dev libxml2-dev libbz2-dev ncurses-dev libffi-dev libc6-dev
