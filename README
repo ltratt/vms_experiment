@@ -20,12 +20,6 @@ can get all dependencies with:
   $ sudo apt-get update
   $ sudo apt-get install git make mercurial subversion unzip openjdk-7-jdk autoconf libpcre3-dev libexpat-dev libxml2-dev libbz2-dev ncurses-dev libffi-dev libc6-dev
 
-Converge seems to look for specific static libraries, and I don't think you get
-these by default with Ubuntu so you need to install them from sources:
-
-  * libxml2 (configure --without-python)
-  * libpcre
-
 In general you can simply execute make:
 
   $ make

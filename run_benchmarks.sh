@@ -101,14 +101,6 @@ benchmark () {
               fi
               cmds[0]="$WRKDIR/benchmarks/${leaf_ne}_c $count"
               ;;
-            *.cv )
-              cmds[0]="-r \"$WRKDIR/converge2/vm/converge $WRKDIR/converge2/compiler/convergec -fm $leaf\" $WRKDIR/converge2/vm/converge $leaf_ne $count"
-              if [ $leaf != "fannkuchredux.cv" ]; then
-                  # fannkuchredux causes converge1 to crash; we therefore don't
-                  # bother running it.
-                  cmds[1]="-r \"$WRKDIR/converge1/vm/converge $WRKDIR/converge1/compiler/convergec -fm $leaf\" $WRKDIR/converge1/vm/converge $leaf_ne $count"
-              fi
-              ;;
             *.java )
               javac $leaf || exit $?
               cmds[0]="java -Xmx2500M `echo $leaf | cut -d "." -f 1` $count"

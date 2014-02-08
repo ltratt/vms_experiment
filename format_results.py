@@ -13,8 +13,6 @@ RESULTS_PATH = "results"
 VMS_MAP = {
   "c"             : "GCC (4.7.2)",
   "java"          : "HotSpot (1.7.0_09)",
-  "converge1"     : "Converge1 (git 14563464)",
-  "converge2"     : "Converge2 (git 52bc61a3)",
   "cpython"       : "CPython (2.7.5)",
   "jruby"         : "JRuby (1.7.4)",
   "jython"        : "Jython (2.5.3)",
@@ -26,7 +24,7 @@ VMS_MAP = {
   "topaz"         : "Topaz (nightly)",
   "d8"            : "V8 (3.20.15)"
 }
-VMS_ORDER=["c", "java", "converge1", "converge2", "d8", "lua", "luajit", "cpython", \
+VMS_ORDER=["c", "java", "d8", "lua", "luajit", "cpython", \
   "jython", "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby", \
   "topaz"]
 BENCH_MAP = {
@@ -339,15 +337,13 @@ if "latex" in sys.argv:
       lambda x: x in ["dhrystone", "fannkuchredux", "richards"], None)
     latex_timings(benchmarks, "full1.tex", "\\textwidth", \
       lambda x: x in ["binarytrees", "dhrystone", "fannkuchredux"], \
-      lambda x: not "converge" in x)
+      None)
     latex_timings(benchmarks, "full2.tex", "\\textwidth", \
-      lambda x: x in ["fasta", "knucleotide", "mandelbrot"], \
-      lambda x: not "converge" in x)
+      lambda x: x in ["fasta", "knucleotide", "mandelbrot"], None)
+      
     latex_timings(benchmarks, "full3.tex", "\\textwidth", \
-      lambda x: x in ["nbody", "regexdna", "revcomp"], \
-      lambda x: not "converge" in x)
+      lambda x: x in ["nbody", "regexdna", "revcomp"], None)
     latex_timings(benchmarks, "full4.tex", ".72\\textwidth", \
-      lambda x: x in ["richards", "spectralnorm"], \
-      lambda x: not "converge" in x)
+      lambda x: x in ["richards", "spectralnorm"], None)
 else:
     html_timings(benchmarks, raw_data, "results.html")

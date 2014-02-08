@@ -7,29 +7,6 @@ fi
 wrkdir=`pwd`
 dump=`mktemp`
 
-# Converge1
-
-cd $wrkdir/converge1
-find . -name "*.[ch]" \
-  | grep -vE "err.[ch]|strlcat.[ch]|fgetln.[ch]|strlcpy.[ch]" \
-  | grep -v "Modules" \
-  | xargs cat > $dump
-$wrkdir/srep -m "//.*?$" "" $dump
-$wrkdir/srep -m "/\\*.*?\\*/" "" $dump
-$wrkdir/srep -m "[ \\t]*$" "" $dump
-$wrkdir/srep -m "\\n+" "\n" $dump
-echo "Converge1 LoC:" `wc -l $dump | cut -d " " -f 1`
-
-# Converge2
-
-cd $wrkdir/converge2
-dump=`mktemp`
-find . -name "*.py" | grep -v "Modules/" | xargs cat > $dump
-$wrkdir/srep -m "#.*?$" "" $dump
-$wrkdir/srep -m "[ \\t]*$" "" $dump
-$wrkdir/srep -m "\\n+" "\n" $dump
-echo "Converge2 LoC:" `wc -l $dump | cut -d " " -f 1`
-
 # CPython
 
 cd $wrkdir/cpython

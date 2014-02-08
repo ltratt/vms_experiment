@@ -89,27 +89,6 @@ make || exit $?
 cp multitime ..
 
 
-# Converge 1
-
-echo "\\n===> Download and build Converge1\\n"
-sleep 3
-cd $wrkdir
-wget http://tratt.net/laurie/research/publications/files/metatracing_vms/snapshot_1.2.x.tar.bz2  || exit $?
-bunzip2 -c - snapshot_1.2.x.tar.bz2|tar xf -
-mv converge-current converge-1.2.x
-git clone git://github.com/ltratt/converge.git || exit $?
-mv converge converge1
-cp -rp converge-1.2.x/bootstrap/32bit_little_endian/* converge1/bootstrap/32bit_little_endian/
-cd converge1
-git checkout converge-1.x
-git checkout 14563464
-make -f Makefile.bootstrap || exit $?
-./configure || exit $?
-# We need -lm here, and the order is important so we can't use LDFLAGS when configuring
-sed -i 's|LIBS=-L/usr/local/lib -lpcre -lxml2 -lcurses|LIBS=-L/usr/local/lib -lpcre -lxml2 -lcurses -lm|' vm/Makefile
-$MYMAKE || exit $?
-
-
 # CPython
 
 echo "\\n===> Download and build CPython\\n"
@@ -202,24 +181,6 @@ PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -O2 --translation-
   --output=pypy-jit-no-object-optimizations targetpypystandalone.py \
   --no-objspace-std-withcelldict --no-objspace-std-withmapdict \
   --no-objspace-std-withmethodcache || exit $?
-rm -rf $usession
-
-
-# Converge 2
-#
-# This needs PyPy to have been downloaded, hence why it's out of order.
-
-echo "\\n===> Download and build Converge 2\\n"
-sleep 3
-cd $wrkdir
-git clone https://github.com/ltratt/converge.git || exit $?
-mv converge converge2
-cd converge2
-git checkout 08dadda2
-git diff ae1e0c25 d9329ca0 | patch -f vm/VM.py # Needed to compile with PyPy 2.1
-usession=`mkdir -d`
-PYPY_SRC=$wrkdir/pypy/ ./configure || exit $?
-PYPY_USESSION_DIR=$usession $MYMAKE || exit $?
 rm -rf $usession
 
 
