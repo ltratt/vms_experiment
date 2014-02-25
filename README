@@ -2,10 +2,11 @@
   Overview
 =============================================================================
 
-This package accompanies the paper "The impact of RPython on VM design and
-implementation" by Carl Friedrich Bolz and Laurence Tratt. It automates the
-building and running of the experimental results therein, so that others can
-reproduce the results and study them.
+This package originally accompanied the paper "The impact of RPython on VM
+design and implementation" by Carl Friedrich Bolz and Laurence Tratt. It
+automates the building and running of the experimental results therein, so that
+others can reproduce the results and study them. The experiments have since been
+extended beyond those in the original paper by various authors.
 
 We have attempted to make this as automated as possible on Unix machines. We
 recommend that the machine you run this on has at least 6Gb RAM (preferably
