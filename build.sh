@@ -214,6 +214,7 @@ topaz/bin/topaz -e "p 'Succesfully downloaded Topaz'" || exit $?
 # V8
 
 echo "\\n===> Download and build V8\\n"
+cd $wrkdir
 V8_V=3.20.15
 wget https://github.com/v8/v8/archive/${V8_V}.tar.gz || exit $?
 tar xfz ${V8_V}.tar.gz || exit $?
