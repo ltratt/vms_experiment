@@ -9,6 +9,7 @@ check_for () {
     fi
 }
 
+check_for cc
 check_for bunzip2
 check_for git
 check_for hg
