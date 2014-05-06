@@ -144,6 +144,9 @@ TASKTABSIZE = 10
 
 class TaskWorkArea(object):
     def __init__(self):
+        self.reset()
+    
+    def reset(self):
         self.taskTab = [None] * TASKTABSIZE
 
         self.taskList = None
@@ -361,8 +364,7 @@ class Richards(object):
 
     def run(self, iterations):
         for i in xrange(iterations):
-            taskWorkArea.holdCount = 0
-            taskWorkArea.qpktCount = 0
+            taskWorkArea.reset()
 
             IdleTask(I_IDLE, 1, 10000, TaskState().running(), IdleTaskRec())
 
