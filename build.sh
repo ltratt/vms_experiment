@@ -83,9 +83,9 @@ chmod a+x srep supuner
 
 echo "\\n===> Fetching and building multitime\\n"
 
-wget http://tratt.net/laurie/src/multitime/releases/multitime-1.2.tar.gz || exit $?
-tar xfz multitime-1.2.tar.gz
-cd multitime-1.2
+wget http://tratt.net/laurie/src/multitime/releases/multitime-1.3.tar.gz || exit $?
+tar xfz multitime-1.3.tar.gz
+cd multitime-1.3
 ./configure || exit $?
 make || exit $?
 cp multitime ..
@@ -95,10 +95,11 @@ cp multitime ..
 
 echo "\\n===> Download and build CPython\\n"
 sleep 3
+CPYTHONV=2.7.7
 cd $wrkdir
-wget http://python.org/ftp/python/2.7.5/Python-2.7.5.tar.bz2 || exit $?
-bunzip2 -c - Python-2.7.5.tar.bz2 | tar xf -
-mv Python-2.7.5 cpython
+wget http://python.org/ftp/python/${CPYTHONV}/Python-${CPYTHONV}.tgz || exit $?
+tar xfz Python-${CPYTHONV}.tgz || exit $?
+mv Python-${CPYTHONV} cpython
 cd cpython
 ./configure || exit $?
 $MYMAKE || exit $?
@@ -109,14 +110,15 @@ cp $wrkdir/cpython/Lib/test/pystone.py $wrkdir/benchmarks/dhrystone.py
 
 echo "\\n===> Download and build JRuby\\n"
 sleep 3
+JRUBYV=1.7.12
 cd $wrkdir
-wget http://jruby.org.s3.amazonaws.com/downloads/1.7.4/jruby-bin-1.7.4.tar.gz || exit $?
-tar xfz jruby-bin-1.7.4.tar.gz
+wget http://jruby.org.s3.amazonaws.com/downloads/${JRUBYV}/jruby-bin-${JRUBYV}.tar.gz || exit $?
+tar xfz jruby-bin-${JRUBYV}.tar.gz
 git clone git://github.com/jruby/jruby.git || exit $?
 mv jruby jruby_src
-mv jruby-1.7.4 jruby
+mv jruby-${JRUBYV} jruby
 cd jruby_src
-git checkout 1.7.4
+git checkout ${JRUBYV}
 
 
 # Jython
@@ -139,10 +141,11 @@ unzip -f ../jython-2.5.3-sources.jar
 
 echo "\\n===> Download and build Lua\\n"
 sleep 3
+LUAV=5.2.3
 cd $wrkdir
-wget http://www.lua.org/ftp/lua-5.2.2.tar.gz || exit $?
-tar xfz lua-5.2.2.tar.gz
-mv lua-5.2.2 lua
+wget http://www.lua.org/ftp/lua-${LUAV}.tar.gz || exit $?
+tar xfz lua-${LUAV}.tar.gz
+mv lua-${LUAV} lua
 cd lua
 case `uname -s` in
     *BSD) $MYMAKE bsd || exit $?;;
@@ -156,17 +159,18 @@ esac
 
 echo "\\n===> Download and build LuaJIT\\n"
 sleep 3
+LUAJITV=2.0.3
 cd $wrkdir
-wget http://luajit.org/download/LuaJIT-2.0.2.tar.gz || exit $?
-tar xfz LuaJIT-2.0.2.tar.gz
-mv LuaJIT-2.0.2 luajit
+wget http://luajit.org/download/LuaJIT-${LUAJITV}.tar.gz || exit $?
+tar xfz LuaJIT-${LUAJITV}.tar.gz
+mv LuaJIT-${LUAJITV} luajit
 cd luajit
 $MYMAKE || exit $?
 
 
 # PHP
 
-echo "\\n===>Download and build PHP\\n"
+echo "\\n===> Download and build PHP\\n"
 sleep 3
 PHPV=5.5.13
 cd $wrkdir
@@ -182,21 +186,16 @@ $MYMAKE || exit $?
 
 echo "\\n===> Download PyPy\\n"
 sleep 3
+PYPYV=2.3.1
 cd $wrkdir
-wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.1-src.tar.bz2 || exit $?
-bunzip2 -c - pypy-2.1-src.tar.bz2 | tar xf -
-mv pypy-2.1-src pypy
+wget https://bitbucket.org/pypy/pypy/downloads/pypy-${PYPYV}-src.tar.bz2 || exit $?
+bunzip2 -c - pypy-${PYPYV}-src.tar.bz2 | tar xf -
+mv pypy-${PYPYV}-src pypy
 cd pypy/pypy/goal/
 echo "\\n===> Build normal PyPy\\n"
 sleep 3
 usession=`mktemp -d`
-PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -Ojit --output=pypy-jit-standard || exit $?
-echo "\\n===> Build PyPy without optimisations\\n"
-sleep 3
-PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -O2 --translation-jit \
-  --output=pypy-jit-no-object-optimizations targetpypystandalone.py \
-  --no-objspace-std-withcelldict --no-objspace-std-withmapdict \
-  --no-objspace-std-withmethodcache || exit $?
+PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -Ojit --output=pypy || exit $?
 rm -rf $usession
 
 
@@ -204,20 +203,21 @@ rm -rf $usession
 
 echo "\\n===> Download and build Ruby\\n"
 sleep 3
+RUBYV=2.1.2
 cd $wrkdir
-wget ftp://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.gz || exit $?
-tar xfz ruby-2.0.0-p247.tar.gz
-mv ruby-2.0.0-p247 ruby
+wget ftp://ftp.ruby-lang.org/pub/ruby/2.1/ruby-${RUBYV}.tar.gz || exit $?
+tar xfz ruby-${RUBYV}.tar.gz
+mv ruby-${RUBYV} ruby
 cd ruby
-./configure || exit $?
-$MYMAKE || exit $?
+./configure --prefix=$wrkdir/ruby_inst || exit $?
+$MYMAKE install || exit $?
 
 
 # V8
 
 echo "\\n===> Download and build V8\\n"
 cd $wrkdir
-V8_V=3.20.15
+V8_V=3.27.34
 wget https://github.com/v8/v8/archive/${V8_V}.tar.gz || exit $?
 tar xfz ${V8_V}.tar.gz || exit $?
 mv v8-${V8_V}/ v8 || exit $?

@@ -11,23 +11,20 @@ import os, re, stat, subprocess, sys, time
 
 RESULTS_PATH = "results"
 VMS_MAP = {
-  "c"             : "GCC (4.7.2)",
-  "java"          : "HotSpot (1.7.0_09)",
-  "cpython"       : "CPython (2.7.5)",
-  "jruby"         : "JRuby (1.7.4)",
-  "jython"        : "Jython (2.5.3)",
-  "lua"           : "Lua (5.2.2)",
-  "luajit"        : "LuaJIT (2.0.2)",
-  "php"           : "PHP (5.5.13)",
-  "pypy-jit-no-object-optimizations" : "PyPy--nonopt (2.1)",
-  "pypy-jit-standard" : "PyPy (2.1)",
-  "ruby"          : "Ruby (2.0.0-p247)",
-  "topaz"         : "Topaz (nightly)",
-  "d8"            : "V8 (3.20.15)"
+  "c"       : "GCC (4.7.2)",
+  "java"    : "HotSpot (1.7.0_09)",
+  "cpython" : "CPython (2.7.7)",
+  "jruby"   : "JRuby (1.7.12)",
+  "jython"  : "Jython (2.5.3)",
+  "lua"     : "Lua (5.2.3)",
+  "luajit"  : "LuaJIT (2.0.3)",
+  "php"     : "PHP (5.5.13)",
+  "pypy"    : "PyPy (2.3.1)",
+  "ruby"    : "Ruby (2.1.2)",
+  "d8"      : "V8 (3.27.34)"
 }
 VMS_ORDER=["c", "java", "d8", "lua", "luajit", "cpython", "jython", "php", \
-  "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby", \
-  "topaz"]
+  "pypy", "ruby", "jruby"]
 BENCH_MAP = {
   "binarytrees"   : "Binary Trees",
   "dhrystone"     : "Dhrystone",
