@@ -18,14 +18,15 @@ VMS_MAP = {
   "jython"        : "Jython (2.5.3)",
   "lua"           : "Lua (5.2.2)",
   "luajit"        : "LuaJIT (2.0.2)",
+  "php"           : "PHP (5.5.13)",
   "pypy-jit-no-object-optimizations" : "PyPy--nonopt (2.1)",
   "pypy-jit-standard" : "PyPy (2.1)",
   "ruby"          : "Ruby (2.0.0-p247)",
   "topaz"         : "Topaz (nightly)",
   "d8"            : "V8 (3.20.15)"
 }
-VMS_ORDER=["c", "java", "d8", "lua", "luajit", "cpython", \
-  "jython", "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby", \
+VMS_ORDER=["c", "java", "d8", "lua", "luajit", "cpython", "jython", "php", \
+  "pypy-jit-no-object-optimizations", "pypy-jit-standard", "ruby", "jruby", \
   "topaz"]
 BENCH_MAP = {
   "binarytrees"   : "Binary Trees",

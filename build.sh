@@ -16,6 +16,7 @@ check_for hg
 check_for python
 check_for svn
 check_for unzip
+check_for xml2-config
 which pypy > /dev/null 2> /dev/null
 if [ $? -eq 0 ]; then
     PYTHON=`which pypy`
@@ -160,6 +161,20 @@ wget http://luajit.org/download/LuaJIT-2.0.2.tar.gz || exit $?
 tar xfz LuaJIT-2.0.2.tar.gz
 mv LuaJIT-2.0.2 luajit
 cd luajit
+$MYMAKE || exit $?
+
+
+# PHP
+
+echo "\\n===>Download and build PHP\\n"
+sleep 3
+PHPV=5.5.13
+cd $wrkdir
+wget -O php-${PHPV}.tar.bz2 http://uk3.php.net/get/php-${PHPV}.tar.bz2/from/this/mirror || exit $?
+bunzip2 -c - php-${PHPV}.tar.bz2 | tar xf - || exit $?
+mv php-${PHPV} php
+cd php
+./configure || exit $?
 $MYMAKE || exit $?
 
 

@@ -112,6 +112,9 @@ benchmark () {
               cmds[0]="$WRKDIR/lua/src/lua $leaf $count"
               cmds[1]="$WRKDIR/luajit/src/luajit $leaf $count"
               ;;
+            *.php )
+              cmds[0]="$WRKDIR/php/sapi/cli/php -c php.ini $leaf $count"
+              ;;
             *.py )
               cmds[0]="$WRKDIR/cpython/python $leaf $count"
               cmds[1]="$WRKDIR/jython/bin/jython -J-Xmx2500M $leaf $count"
