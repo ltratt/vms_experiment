@@ -70,7 +70,7 @@ float           Microseconds,
 /* end of variables for time measurement */
 
 
-void main (int argc, char *argv[])
+int main (int argc, char *argv[])
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -282,6 +282,7 @@ void main (int argc, char *argv[])
     printf ("\n");
   }
   
+  return 0;
 }
 
 
