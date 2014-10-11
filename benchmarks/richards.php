@@ -1,4 +1,4 @@
-<?
+<?php
 // Ported by Maciej Fijalkowski to PHP (BSD license)
 
 // Task IDs
