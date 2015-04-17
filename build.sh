@@ -78,7 +78,7 @@ echo "===> Working in $wrkdir"
 echo "\\n===> Fetching supuner and srep\\n"
 
 cd $wrkdir
-wget https://raw.github.com/ltratt/bin/master/supuner || exit $?
+wget https://raw.githubusercontent.com/ltratt/supuner/master/supuner || exit $?
 wget https://raw.githubusercontent.com/ltratt/srep/master/srep || exit $?
 chmod a+x srep supuner
 
