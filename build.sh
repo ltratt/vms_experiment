@@ -187,7 +187,7 @@ $MYMAKE || exit $?
 
 echo "\\n===> Download PyPy\\n"
 sleep 3
-PYPYV=2.3.1
+PYPYV=2.6.0
 cd $wrkdir
 wget https://bitbucket.org/pypy/pypy/downloads/pypy-${PYPYV}-src.tar.bz2 || exit $?
 bunzip2 -c - pypy-${PYPYV}-src.tar.bz2 | tar xf -
@@ -196,7 +196,7 @@ cd pypy/pypy/goal/
 echo "\\n===> Build normal PyPy\\n"
 sleep 3
 usession=`mktemp -d`
-PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -Ojit --output=pypy || exit $?
+PYPY_USESSION_DIR=$usession $PYTHON ../../rpython/bin/rpython -Ojit --no-shared --output=pypy || exit $?
 rm -rf $usession
 
 
