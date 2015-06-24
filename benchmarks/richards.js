@@ -83,8 +83,8 @@ var COUNT = 10000;
  * correct run so if the actual queue or hold count is different from
  * the expected there must be a bug in the implementation.
  **/
-var EXPECTED_QUEUE_COUNT = 2322;
-var EXPECTED_HOLD_COUNT = 928;
+var EXPECTED_QUEUE_COUNT = 23246;
+var EXPECTED_HOLD_COUNT = 9297;
 
 
 /**
