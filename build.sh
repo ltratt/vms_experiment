@@ -220,7 +220,7 @@ $MYMAKE install || exit $?
 echo "\\n===> Download and build V8\\n"
 cd $wrkdir
 V8_V=4.5.75
-wget https://github.com/v8/v8-mirror/archive/${V8_V}.tar.gz || exit $?
+wget https://github.com/v8/v8-git-mirror/archive/${V8_V}.tar.gz || exit $?
 tar xfz ${V8_V}.tar.gz || exit $?
 mv v8-${V8_V}/ v8 || exit $?
 cd v8
