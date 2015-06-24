@@ -74,7 +74,7 @@ function runRichards(iters) {
   }
 }
 
-var COUNT = 1000;
+var COUNT = 10000;
 
 /**
  * These two constants specify how many times a packet is queued and
