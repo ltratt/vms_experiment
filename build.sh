@@ -96,7 +96,7 @@ cp multitime ..
 
 echo "\\n===> Download and build CPython\\n"
 sleep 3
-CPYTHONV=2.7.7
+CPYTHONV=2.7.9
 cd $wrkdir
 wget http://python.org/ftp/python/${CPYTHONV}/Python-${CPYTHONV}.tgz || exit $?
 tar xfz Python-${CPYTHONV}.tgz || exit $?
@@ -111,7 +111,7 @@ cp $wrkdir/cpython/Lib/test/pystone.py $wrkdir/benchmarks/dhrystone.py
 
 echo "\\n===> Download and build JRuby\\n"
 sleep 3
-JRUBYV=1.7.12
+JRUBYV=1.7.20.1
 cd $wrkdir
 wget http://jruby.org.s3.amazonaws.com/downloads/${JRUBYV}/jruby-bin-${JRUBYV}.tar.gz || exit $?
 tar xfz jruby-bin-${JRUBYV}.tar.gz
@@ -127,22 +127,23 @@ git checkout ${JRUBYV}
 echo "\\n===> Download and build Jython\\n"
 sleep 3
 cd $wrkdir
-wget -O jython-installer-2.5.3-java.jar \
-  "http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.5.3/jython-installer-2.5.3.jar" \
+JYTHONV=2.7.0
+wget -O jython-installer-${JYTHONV}-java.jar \
+  "http://search.maven.org/remotecontent?filepath=org/python/jython-installer/${JYTHONV}/jython-installer-${JYTHONV}.jar" \
    || exit $?
-wget -O jython-2.5.3-sources.jar \
-  "http://search.maven.org/remotecontent?filepath=org/python/jython/2.5.3/jython-2.5.3-sources.jar" \
+wget -O jython-${JYTHONV}-sources.jar \
+  "http://search.maven.org/remotecontent?filepath=org/python/jython/${JYTHONV}/jython-${JYTHONV}-sources.jar" \
    || exit $?
-java -jar jython-installer-2.5.3-java.jar -s -d jython || exit $?
+java -jar jython-installer-${JYTHONV}-java.jar -s -d jython || exit $?
 cd jython
-unzip -f ../jython-2.5.3-sources.jar
+unzip -f ../jython-${JYTHONV}-sources.jar
 
 
 # Lua
 
 echo "\\n===> Download and build Lua\\n"
 sleep 3
-LUAV=5.2.3
+LUAV=5.3.1
 cd $wrkdir
 wget http://www.lua.org/ftp/lua-${LUAV}.tar.gz || exit $?
 tar xfz lua-${LUAV}.tar.gz
@@ -160,7 +161,7 @@ esac
 
 echo "\\n===> Download and build LuaJIT\\n"
 sleep 3
-LUAJITV=2.0.3
+LUAJITV=2.0.4
 cd $wrkdir
 wget http://luajit.org/download/LuaJIT-${LUAJITV}.tar.gz || exit $?
 tar xfz LuaJIT-${LUAJITV}.tar.gz
@@ -173,7 +174,7 @@ $MYMAKE || exit $?
 
 echo "\\n===> Download and build PHP\\n"
 sleep 3
-PHPV=5.5.13
+PHPV=5.6.10
 cd $wrkdir
 wget -O php-${PHPV}.tar.bz2 http://uk3.php.net/get/php-${PHPV}.tar.bz2/from/this/mirror || exit $?
 bunzip2 -c - php-${PHPV}.tar.bz2 | tar xf - || exit $?
@@ -204,9 +205,9 @@ rm -rf $usession
 
 echo "\\n===> Download and build Ruby\\n"
 sleep 3
-RUBYV=2.1.2
+RUBYV=2.2.2
 cd $wrkdir
-wget ftp://ftp.ruby-lang.org/pub/ruby/2.1/ruby-${RUBYV}.tar.gz || exit $?
+wget ftp://ftp.ruby-lang.org/pub/ruby/2.2/ruby-${RUBYV}.tar.gz || exit $?
 tar xfz ruby-${RUBYV}.tar.gz
 mv ruby-${RUBYV} ruby
 cd ruby
@@ -218,8 +219,8 @@ $MYMAKE install || exit $?
 
 echo "\\n===> Download and build V8\\n"
 cd $wrkdir
-V8_V=3.27.34
-wget https://github.com/v8/v8/archive/${V8_V}.tar.gz || exit $?
+V8_V=4.5.75
+wget https://github.com/v8/v8-mirror/archive/${V8_V}.tar.gz || exit $?
 tar xfz ${V8_V}.tar.gz || exit $?
 mv v8-${V8_V}/ v8 || exit $?
 cd v8
