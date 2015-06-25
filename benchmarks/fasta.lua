@@ -23,7 +23,7 @@ end
 
 local function make_random_fasta(id, desc, bs, n)
   io.write(">", id, " ", desc, "\n")
-  loadstring([=[
+  load([=[
     local write, char, unpack, n, random = io.write, string.char, unpack, ...
     local buf, p = {}, 1
     for i=60,n,60 do

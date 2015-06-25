@@ -29,7 +29,7 @@ wcode = wcode..[=["\n")
   end
 end
 ]=]
-local writerev = loadstring(wcode)()
+local writerev = load(wcode)()
 
 local t, n = {}, 1
 for line in io.lines() do
