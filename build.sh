@@ -136,7 +136,7 @@ wget -O jython-${JYTHONV}-sources.jar \
    || exit $?
 java -jar jython-installer-${JYTHONV}-java.jar -s -d jython || exit $?
 cd jython
-unzip -f ../jython-${JYTHONV}-sources.jar
+unzip -fo ../jython-${JYTHONV}-sources.jar
 
 
 # Lua
