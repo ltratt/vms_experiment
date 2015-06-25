@@ -221,7 +221,7 @@ echo "\\n===> Download and build V8\\n"
 cd $wrkdir
 V8_V=4.5.75
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-depot_tools/fetch v8 || exit $?
+PATH=depot_tools:$PATH fetch v8 || exit $?
 cd v8
 git checkout ${V8_V} || exit $?
 make native || exit $?
