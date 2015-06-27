@@ -192,7 +192,8 @@ experiments that form part of the paper <a
 href="http://tratt.net/laurie/research/publications/files/metatracing_vms/">
 The Impact of Meta-Tracing on VM Design and Implementation</a> by Carl
 Friedrich Bolz and Laurence Tratt. The <a href="#methodology">methodology</a>
-for the experiment and <a href="#dmesg"><code>dmesg</code></a> for the
+for the experiment and <a href="#dmesg"><code>dmesg</code></a> and
+<a href="#installed">installed software</a> for the
 machine used to produce these results can be seen below. The
 latest version of the experiment, including the source code of the
 benchmarking suite and benchmarks, can be found <a
@@ -324,6 +325,25 @@ The results here come from a <code>results</code> file last modified at %s.
         
         dm = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
         f.write(dm.stdout.read())
+        f.write("</pre>\n</html>")
+
+        f.write("""
+</pre>
+
+<h3><a name="installed">Installed software</a></h3>
+
+<pre style="white-space: pre-wrap">
+""")
+     
+        uname = subprocess.Popen(["/usr/bin/env", "uname", "-a"], stdout=subprocess.PIPE).stdout.read()
+        if "Debian" in uname:
+            pkgs = subprocess.Popen(["/usr/bin/dpkg", "-l"], stdout=subprocess.PIPE)
+            f.write(pkgs.stdout.read())
+        elif "OpenBSD" in uname:
+            pkgs = subprocess.Popen(["/usr/sbin/pkg_info"], stdout=subprocess.PIPE)
+            f.write(pkgs.stdout.read())
+        else:
+            f.write("Unable to list packages for %s" % uname)
         f.write("</pre>\n</html>")
         
 
