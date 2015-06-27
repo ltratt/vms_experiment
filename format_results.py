@@ -11,17 +11,17 @@ import os, re, stat, subprocess, sys, time
 
 RESULTS_PATH = "results"
 VMS_MAP = {
-  "c"       : "GCC (4.7.2)",
-  "java"    : "HotSpot (1.7.0_09)",
-  "cpython" : "CPython (2.7.7)",
-  "jruby"   : "JRuby (1.7.12)",
-  "jython"  : "Jython (2.5.3)",
-  "lua"     : "Lua (5.2.3)",
-  "luajit"  : "LuaJIT (2.0.3)",
-  "php"     : "PHP (5.5.13)",
-  "pypy"    : "PyPy (2.3.1)",
-  "ruby"    : "Ruby (2.1.2)",
-  "d8"      : "V8 (3.27.34)"
+  "c"       : "GCC (4.9.2)",
+  "java"    : "HotSpot (1.7.0_79)",
+  "cpython" : "CPython (2.7.9)",
+  "jruby"   : "JRuby (1.7.20.1)",
+  "jython"  : "Jython (2.7.0)",
+  "lua"     : "Lua (5.3.1)",
+  "luajit"  : "LuaJIT (2.0.4)",
+  "php"     : "PHP (5.6.10)",
+  "pypy"    : "PyPy (2.6.0)",
+  "ruby"    : "Ruby (2.2.2)",
+  "d8"      : "V8 (4.5.74)"
 }
 VMS_ORDER=["c", "java", "d8", "lua", "luajit", "cpython", "jython", "php", \
   "pypy", "ruby", "jruby"]
