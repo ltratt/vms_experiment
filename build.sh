@@ -37,7 +37,7 @@ if [ $missing -eq 1 ]; then
     exit 1
 fi
 
-java -version 2>&1 | tail -n 1 | grep "OpenJDK .*Server VM (build 23.2-b09, mixed mode)" > /dev/null 2> /dev/null
+java -version 2>&1 | tail -n 1 | grep "OpenJDK .*Server VM (build 24.79-b02, mixed mode)" > /dev/null 2> /dev/null
 if [ $? -ne 0 ]; then
     cat << EOF
 Warning: incorrect version of Java detected. Expected:
